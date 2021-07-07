@@ -12,11 +12,11 @@
         android:layout_height="48dp"
         android:layout_marginBottom="32dp"
         android:text="Start"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/dnnInitButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dnnInitButton" />
+        app:layout_constraintTop_toBottomOf="@id/dnnInitButton" />
 
     <Spinner
         android:id="@+id/nnListSpinner"
@@ -30,7 +30,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/acceleratorPicker" />
 
     <Button
         android:id="@+id/dnnInitButton"
@@ -55,14 +55,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nnListSpinner">
-
-        <RadioButton
-            android:id="@+id/gpuRadio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="GPU" />
+        app:layout_constraintTop_toBottomOf="@id/nnListSpinner">
 
         <RadioButton
             android:id="@+id/cpuRadio"
@@ -70,6 +63,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="CPU" />
+
+        <RadioButton
+            android:id="@+id/gpuRadio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="GPU" />
 
         <RadioButton
             android:id="@+id/nnapiRadio"
@@ -80,9 +80,9 @@
     </RadioGroup>
 
     <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/srImage"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
         app:layout_constraintBottom_toTopOf="@+id/nnListSpinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

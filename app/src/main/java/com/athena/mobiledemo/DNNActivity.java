@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -11,10 +13,22 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.Tensor;
+import org.tensorflow.lite.gpu.CompatibilityList;
+import org.tensorflow.lite.gpu.GpuDelegate;
+import org.tensorflow.lite.nnapi.NnApiDelegate;
+import org.tensorflow.lite.support.common.ops.NormalizeOp;
+import org.tensorflow.lite.support.image.ImageProcessor;
 import org.tensorflow.lite.support.image.TensorImage;
+import org.tensorflow.lite.support.image.ops.ResizeOp;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.File;
@@ -29,24 +43,45 @@ import java.nio.channels.FileChannel;
 public class DNNActivity extends AppCompatActivity {
 
     Interpreter srModel;
+    String modelName;
     Spinner networkSpinner;
     Button initButton;
     Button startButton;
+    RadioGroup acceleratorPicker;
+    RadioButton selectedAccelerator;
+    Interpreter.Options options;
+    GpuDelegate gpuDelegate;
+    NnApiDelegate nnApiDelegate;
+    CompatibilityList compatList;
+    Bitmap lrImg;
+    String[] availableModels;
+    Boolean isDNNReady = false; // To check if the DNN is loaded before running SR
+    ImageView display;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dnn);
-        networkSpinner = (Spinner) findViewById(R.id.nnListSpinner);
-        initButton = (Button) findViewById(R.id.dnnInitButton);
-        startButton = (Button) findViewById(R.id.dnnStartButton);
+        networkSpinner = findViewById(R.id.nnListSpinner);
+        initButton = findViewById(R.id.dnnInitButton);
+        startButton = findViewById(R.id.dnnStartButton);
+        acceleratorPicker = findViewById(R.id.acceleratorPicker);
+        display = findViewById(R.id.srImage);
+        compatList = new CompatibilityList();
         fillSpinner();
         setOnClicks();
     }
 
     public void fillSpinner() {
-        String[] networkList = new String[]{"FSRCNN", "ESPCN", "SRABRNet"};
-        ArrayAdapter<String> nnSpinnerArray = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, networkList);
+        try {
+            availableModels = getAssets().list("models/");
+            for (int i =0; i < availableModels.length; i++) {
+                availableModels[i] = availableModels[i].replace(".tflite", "");
+            }
+        } catch (IOException e) {
+            Log.e("EKREM:", "Error while reading list of models");
+        }
+        ArrayAdapter<String> nnSpinnerArray = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, availableModels);
         nnSpinnerArray.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         networkSpinner.setAdapter(nnSpinnerArray);
     }
@@ -57,7 +92,7 @@ public class DNNActivity extends AppCompatActivity {
     }
 
     private MappedByteBuffer loadModelFile(String modelName) throws IOException {
-        AssetFileDescriptor modelFileDescriptor = this.getAssets().openFd(modelName);
+        AssetFileDescriptor modelFileDescriptor = this.getAssets().openFd("models/" + modelName);
         FileInputStream inputStream = new FileInputStream(modelFileDescriptor.getFileDescriptor());
         FileChannel fileChannel = inputStream.getChannel();
         long startOffset = modelFileDescriptor.getStartOffset();
@@ -66,20 +101,95 @@ public class DNNActivity extends AppCompatActivity {
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
 
-    private void initializeDNN(View view) {
-        // Read options here and intiialize the model
+    private void closeAllDelagates() {
+        if(null != srModel)
+            srModel.close();
+        if(null != nnApiDelegate)
+            nnApiDelegate.close();
+        if(null != gpuDelegate)
+            gpuDelegate.close();
+    }
+
+    private void initializeDNNwithGPU() {
+        closeAllDelagates();
         try {
-            srModel = new Interpreter(loadModelFile("srabrnet_x4.tflite"));
+            options = new Interpreter.Options();
+            // GPU delegate
+            GpuDelegate.Options delegateOptions = compatList.getBestOptionsForThisDevice();
+            gpuDelegate = new GpuDelegate(delegateOptions);
+            options.addDelegate(gpuDelegate);
+            srModel = new Interpreter(loadModelFile(modelName + ".tflite"), options);
+            Log.e("EKREM", "Model Initalized with GPU support: " + srModel.getInputTensor(0).name());
+        } catch (IOException e) {
+            Log.e("EKREM:" ,"Error while initializing model with GPU: " + e);
+        }
+    }
+
+    private void initializeDNNwithNNAPI() {
+        closeAllDelagates();
+        try {
+            options = new Interpreter.Options();
+            // GPU delegate
+            nnApiDelegate = new NnApiDelegate();
+            options.addDelegate(nnApiDelegate);
+            srModel = new Interpreter(loadModelFile(modelName + ".tflite"), options);
+            Log.e("EKREM", "Model Initalized with NNAPI support: " + srModel.getInputTensor(0).name());
+        } catch (IOException e) {
+            Log.e("EKREM:" ,"Error while initializing model with NNAPI: " + e);
+        }
+    }
+
+    private void initializeDNNwithCPU() {
+        closeAllDelagates();
+        try {
+            srModel = new Interpreter(loadModelFile(modelName + ".tflite"));
             Log.e("EKREM", "Model Initalized: " + srModel.getInputTensor(0).name());
         } catch (IOException e) {
             Log.e("EKREM:" ,"Error while initializing model: " + e);
         }
     }
 
-    private TensorImage prepareInput(Bitmap img) {
-        TensorImage lrImg = TensorImage.fromBitmap(img);
+    private String getSelectedAccelerator() {
+        int selectedRadioButtonId = acceleratorPicker.getCheckedRadioButtonId();
+        if (selectedRadioButtonId == -1) {
+            Toast.makeText(this, "Please select an accelerator", Toast.LENGTH_SHORT).show();
+            return null;
+        } else {
+            selectedAccelerator = findViewById(selectedRadioButtonId);
+            return selectedAccelerator.getText().toString();
+        }
+    }
 
-        return lrImg;
+    private String getSelectedModelName() {
+        return networkSpinner.getSelectedItem().toString();
+    }
+
+    private void initializeDNN(View view) {
+        // Check the options here and run the corresponding function
+        String accelerator = getSelectedAccelerator();
+        modelName = getSelectedModelName();
+        if (accelerator != null) {
+            Log.e("Ekrem:", "Accelerator Selected: " + accelerator);
+            switch (accelerator) {
+                case "CPU":
+                    initializeDNNwithCPU();
+                    break;
+                case "GPU":
+                    initializeDNNwithGPU();
+                    break;
+                case "NNAPI":
+                    initializeDNNwithNNAPI();
+                    break;
+            }
+            isDNNReady = true;
+            // Setup the display in the activity
+            try {
+                lrImg = BitmapFactory.decodeStream(getAssets().open("frames/0002x4.png"));
+                display.setImageBitmap(lrImg);
+            } catch (IOException e) {
+                Log.e("EKREM:", "Error while loading input image: " + e);
+            }
+        }
     }
 
     private void saveImage(Bitmap bmp, String filename) throws IOException {
@@ -99,6 +209,7 @@ public class DNNActivity extends AppCompatActivity {
     private Bitmap tensorToBitmap(TensorImage tensorOutput) {
         // Get the output and convert it to Bitmap
         ByteBuffer SROut = tensorOutput.getBuffer();
+        SROut.rewind();
         // get the shape of output and set width height (NHWC in tensor)
         int height = tensorOutput.getHeight();
         int width = tensorOutput.getWidth();
@@ -119,7 +230,49 @@ public class DNNActivity extends AppCompatActivity {
         return bmpImage;
     }
 
-    private void runSR(View view) {
+    private TensorImage prepareInput() {
+        TensorImage lrImage = TensorImage.fromBitmap(lrImg);
+        ImageProcessor imageProcessor = new ImageProcessor.Builder()
+                .add(new ResizeOp(270, 480, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+                .add(new NormalizeOp(0.0f, 255.0f))
+                .build();
+        lrImage = imageProcessor.process(lrImage);
 
+        return lrImage;
+    }
+
+    private TensorImage prepareOutput() {
+        TensorImage srImage = new TensorImage(DataType.FLOAT32);
+        int[] srShape = new int[]{1080, 1920, 3};
+        srImage.load(TensorBuffer.createFixedSize(srShape, DataType.FLOAT32));
+
+        return srImage;
+    }
+
+    private void saveSrImage(TensorImage srImage) {
+        try {
+            Bitmap srImg = tensorToBitmap(srImage);
+            // Change the displayed image in the activity
+            display.setImageBitmap(srImg);
+            saveImage(srImg, "SR_Out");
+            Log.e("EKREM:", "Saved SR Image!");
+        } catch (IOException e) {
+            Log.e("EKREM:", "Error while saving the SR Image" + e);
+        }
+    }
+
+    private void runSR(View view) {
+        if (isDNNReady) {
+            TensorImage lrImage = prepareInput();
+            TensorImage srImage = prepareOutput();
+            long startTime = System.currentTimeMillis();
+            srModel.run(lrImage.getBuffer(), srImage.getBuffer());
+            long difference = System.currentTimeMillis() - startTime;
+            Log.e("EKREM: ", "SR Execution Time:  " + difference + " ms");
+            saveSrImage(srImage);
+        }
+        else {
+            Toast.makeText(this, "Please load a model first!", Toast.LENGTH_SHORT).show();
+        }
     }
 }
