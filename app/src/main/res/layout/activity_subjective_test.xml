@@ -7,7 +7,7 @@
     tools:context=".SubjectiveActivity">
 
     <Button
-        android:id="@+id/subjectiveStartButton"
+        android:id="@+id/playButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Start"
@@ -29,12 +29,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.078"
         tools:srcCompat="@mipmap/athena_logo" />
+
     <VideoView
         android:id="@+id/videoView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="1920px"
+        android:layout_height="1080px"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

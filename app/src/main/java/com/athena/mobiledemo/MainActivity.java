@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startSubjective(View view) {
-        Intent dnnIntent = new Intent(this, SubjectiveActivity.class);
+        Intent dnnIntent = new Intent(this, SubjectiveInstruction.class);
         startActivity(dnnIntent);
     }
 }

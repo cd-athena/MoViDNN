@@ -2,6 +2,7 @@ package com.athena.mobiledemo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.pm.ActivityInfo;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -62,6 +63,7 @@ public class DNNActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dnn);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         networkSpinner = findViewById(R.id.nnListSpinner);
         initButton = findViewById(R.id.dnnInitButton);
         startButton = findViewById(R.id.dnnStartButton);
