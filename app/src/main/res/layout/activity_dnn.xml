@@ -30,7 +30,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/acceleratorPicker" />
+        app:layout_constraintTop_toTopOf="@id/srImage" />
 
     <Button
         android:id="@+id/dnnInitButton"
@@ -88,5 +88,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@mipmap/athena_logo" />
+
+    <TextView
+        android:id="@+id/executionTimeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SR Execution Time: "
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dnnStartButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -19,6 +19,7 @@
 
         <activity
             android:name=".ABRActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
         <activity
@@ -27,6 +28,7 @@
             android:parentActivityName=".SubjectiveInstruction" />
         <activity
             android:name=".DNNActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".SubjectiveInstruction"

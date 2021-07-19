@@ -2,11 +2,11 @@ package com.athena.mobiledemo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -18,11 +18,11 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
-import org.tensorflow.lite.Tensor;
 import org.tensorflow.lite.gpu.CompatibilityList;
 import org.tensorflow.lite.gpu.GpuDelegate;
 import org.tensorflow.lite.nnapi.NnApiDelegate;
@@ -58,6 +58,7 @@ public class DNNActivity extends AppCompatActivity {
     String[] availableModels;
     Boolean isDNNReady = false; // To check if the DNN is loaded before running SR
     ImageView display;
+    TextView executionTimeView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +70,7 @@ public class DNNActivity extends AppCompatActivity {
         startButton = findViewById(R.id.dnnStartButton);
         acceleratorPicker = findViewById(R.id.acceleratorPicker);
         display = findViewById(R.id.srImage);
+        executionTimeView = findViewById(R.id.executionTimeView);
         compatList = new CompatibilityList();
         fillSpinner();
         setOnClicks();
@@ -198,10 +200,10 @@ public class DNNActivity extends AppCompatActivity {
         // Assume block needs to be inside a Try/Catch block.
         String path = Environment.getExternalStorageDirectory().toString();
         OutputStream fOut = null;
-        File file = new File(path, filename + ".jpg"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+        File file = new File(path, filename + ".png"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
         fOut = new FileOutputStream(file);
 
-        bmp.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
         fOut.flush(); // Not really required
         fOut.close(); // do not forget to close the stream
 
@@ -263,6 +265,7 @@ public class DNNActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void runSR(View view) {
         if (isDNNReady) {
             TensorImage lrImage = prepareInput();
@@ -270,7 +273,7 @@ public class DNNActivity extends AppCompatActivity {
             long startTime = System.currentTimeMillis();
             srModel.run(lrImage.getBuffer(), srImage.getBuffer());
             long difference = System.currentTimeMillis() - startTime;
-            Log.e("EKREM: ", "SR Execution Time:  " + difference + " ms");
+            executionTimeView.setText("SR Execution Time: " + difference + "ms - " + 1000/difference + "fps");
             saveSrImage(srImage);
         }
         else {
