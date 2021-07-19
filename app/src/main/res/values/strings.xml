@@ -6,8 +6,11 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-    <string name="instruction">This is the instruction for the subject before doing the test. Please read it carefully!</string>
-
+    <string name="instruction">This is the instruction for the subject before doing the test. Please read it carefully!
+                Please make sure that you base your rating on your experience and not on the content that you were shown. The rating scale is referenced as follows:</string>
+    <string name="name">Name</string>
+    <string name="gender">Gender</string>
+    <string name="age">Age</string>
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>

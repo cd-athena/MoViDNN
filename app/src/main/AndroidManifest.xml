@@ -23,12 +23,14 @@
 
         <activity
             android:name=".SubjectiveActivity"
+            android:screenOrientation="landscape"
             android:parentActivityName=".SubjectiveInstruction" />
         <activity
             android:name=".DNNActivity"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".SubjectiveInstruction"
+            android:screenOrientation="landscape"
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>
