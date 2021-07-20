@@ -27,15 +27,18 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 public class SubjectiveActivity extends AppCompatActivity {
-
+    private final int       NUM_OF_TEST_VIDEO = 3;
     private VideoView       videoView;
     private MediaController mediaController;
     private static int      video_index = 1;
+    private static int      current_num_videos = 0;
 
     public List<Integer>    rate = new ArrayList<>();
     public List<String>     video_id = new ArrayList<>();
+    public List<String>     video_paths = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,16 +49,24 @@ public class SubjectiveActivity extends AppCompatActivity {
 
         rate.clear();
         video_id.clear();
-        onSubjectiveTestRunning(video_index);
+        // Get all test videos
+        String video_folder_string = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults";
+        Log.i("Minh", "==> Video folder: " + video_folder_string);
+        File directory = new File(video_folder_string);
 
+        File[] files = directory.listFiles();
+
+        for (int i = 0; i < files.length; i++) {
+            video_paths.add(files[i].getAbsolutePath());
+        }
+        onSubjectiveTestRunning();
     }
 
-    protected void onSubjectiveTestRunning(int video_index) {
-        int video_id = getResources().getIdentifier("video_" + video_index,
-                "raw", getPackageName());
+    protected void onSubjectiveTestRunning() {
         videoView = findViewById(R.id.videoView);
-        String videoPath = "android.resource://" + getPackageName() + "/" + video_id;
-        Uri uri = Uri.parse(videoPath);
+        video_index = new Random().nextInt(video_paths.size());
+        Uri uri = Uri.parse(video_paths.get(video_index));
+        video_paths.remove(video_index);
         videoView.setVideoURI(uri);
 
         mediaController  = new MediaController(this);
@@ -84,7 +95,7 @@ public class SubjectiveActivity extends AppCompatActivity {
     protected void onTestVideoEnd(int video_index) {
         String[] rates_str = {"1: Very poor", "2: Poor", "3: Average", "4: Good", "5: Excellent"};
         int[] rates_int = {1, 2, 3, 4, 5};
-        final int currentVideoIndex = video_index;
+        current_num_videos++;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Rate this video");
@@ -92,13 +103,13 @@ public class SubjectiveActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 rate.add(rates_int[which]);
-                String videoName = "video_" + String.valueOf(currentVideoIndex);
+                String videoName = "video_" + String.valueOf(video_index);
                 video_id.add(videoName);
                 Log.e("Minh", "===> Video " + rate.size() + ": "
                         + rate.get(rate.size()-1) + " for video "
                         + video_id.get(video_id.size()-1));
 
-                if (currentVideoIndex == 2) {
+                if (current_num_videos == 3) {
                     onSubjectTestEnd();
                     return;
                 }
@@ -108,7 +119,7 @@ public class SubjectiveActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         // wait for 500ms before going to the next screen
-                        onSubjectiveTestRunning(currentVideoIndex + 1);
+                        onSubjectiveTestRunning();
                     }
                 }, 500);
 
@@ -127,7 +138,7 @@ public class SubjectiveActivity extends AppCompatActivity {
 
         String fileNameString = year + '_' + month + '_' + day + "__" +
                                 hour + '_' + minute;
-        final File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/");
+        final File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/SubjectiveResults");
 
         if (!dir.exists()) {
             if (!dir.mkdir()) {

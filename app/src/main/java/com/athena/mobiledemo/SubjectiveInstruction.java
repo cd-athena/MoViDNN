@@ -16,15 +16,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SubjectiveInstruction extends AppCompatActivity {
-    private EditText nameEditText;
-    private EditText ageEditText;
 
-    private RadioGroup radioSexGroup;
-    private RadioButton radioSexButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

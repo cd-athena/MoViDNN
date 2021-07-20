@@ -60,6 +60,8 @@ public class DNNActivity extends AppCompatActivity {
     ImageView display;
     TextView executionTimeView;
 
+    final File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +74,13 @@ public class DNNActivity extends AppCompatActivity {
         display = findViewById(R.id.srImage);
         executionTimeView = findViewById(R.id.executionTimeView);
         compatList = new CompatibilityList();
+
+        if (!dir.exists()) {
+            if (!dir.mkdir()) {
+                Log.e ("ALERT", "Could not create the directories");
+            }
+        }
+
         fillSpinner();
         setOnClicks();
     }
@@ -198,9 +207,8 @@ public class DNNActivity extends AppCompatActivity {
 
     private void saveImage(Bitmap bmp, String filename) throws IOException {
         // Assume block needs to be inside a Try/Catch block.
-        String path = Environment.getExternalStorageDirectory().toString();
         OutputStream fOut = null;
-        File file = new File(path, filename + ".png"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+        File file = new File(dir, filename + ".png"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
         fOut = new FileOutputStream(file);
 
         bmp.compress(Bitmap.CompressFormat.PNG, 100, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
