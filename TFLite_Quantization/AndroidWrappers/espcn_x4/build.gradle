@@ -1,0 +1,68 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()  // For versioned releases
+        maven {         // For snapshot releases
+            name 'ossrh-snapshot'
+            url 'http://oss.sonatype.org/content/repositories/snapshots'
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 29
+    defaultConfig {
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+    }
+    aaptOptions {
+        noCompress "tflite"
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+configurations {
+    libMetadata
+}
+
+dependencies {
+    libMetadata 'org.tensorflow:tensorflow-lite-support:0.0.0-experimental-metadata-monolithic'
+}
+
+task downloadLibs(type: Sync) {
+    from configurations.libMetadata
+    into "$buildDir/libs"
+    rename 'tensorflow-lite-support-0.0.0-experimental-metadata-monolithic.jar', "tensorflow-lite-support-metadata.jar"
+}
+
+preBuild.dependsOn downloadLibs
+
+dependencies {
+    compileOnly 'org.checkerframework:checker-qual:2.5.8'
+    api 'org.tensorflow:tensorflow-lite:0.0.0-nightly-SNAPSHOT'
+    api 'org.tensorflow:tensorflow-lite-support:0.0.0-nightly-SNAPSHOT'
+    api files("$buildDir/libs/tensorflow-lite-support-metadata.jar")
+    implementation 'org.apache.commons:commons-compress:1.19'
+}
