@@ -14,4 +14,4 @@ def resize_div2k(scale):
         res_im = img.resize((1920 // scale, 1080 // scale), Image.BICUBIC)
         res_im.save(lr_dir + image[:-4] + "x{}.png".format(scale))
 
-resize_div2k(4)
+resize_div2k(1)

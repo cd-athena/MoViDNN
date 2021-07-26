@@ -92,6 +92,9 @@ public class DNNActivity extends AppCompatActivity {
     Boolean isVideoReady = false; // To check if input video is loaded before running SR
     Boolean isDNNReady = false; // To check if the DNN is loaded before running SR
     final File resultsDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults");
+    // Input variables
+    int width = 480;
+    int height = 270;
     // Video processing variables
     ArrayList<SortedFrame> videoFrames = new ArrayList<>();
     ArrayList<Bitmap> srFrames = new ArrayList<>();
@@ -213,10 +216,30 @@ public class DNNActivity extends AppCompatActivity {
         return networkSpinner.getSelectedItem().toString();
     }
 
+    private void setScale(String modelName) {
+        // Check the model name and determine the scale
+        String scale = modelName.split("_")[1];
+        switch (scale) {
+            case "x2":
+                width = 960;
+                height = 540;
+                break;
+            case "x3":
+                width = 640;
+                height = 360;
+                break;
+            case "x4":
+                width = 480;
+                height = 270;
+                break;
+        }
+    }
+
     private void initializeDNN(View view) {
         // Check the options here and run the corresponding function
         String accelerator = getSelectedAccelerator();
         modelName = getSelectedModelName();
+        setScale(modelName);
         if (accelerator != null) {
             Log.e("Ekrem:", "Accelerator Selected: " + accelerator);
             switch (accelerator) {
@@ -231,14 +254,6 @@ public class DNNActivity extends AppCompatActivity {
                     break;
             }
             isDNNReady = true;
-            /**
-            try {
-                lrImg = BitmapFactory.decodeStream(getAssets().open("frames/0002x4.png"));
-                display.setImageBitmap(lrImg);
-            } catch (IOException e) {
-                Log.e("EKREM:", "Error while loading input image: " + e);
-            }
-             **/
         }
     }
 
@@ -330,7 +345,7 @@ public class DNNActivity extends AppCompatActivity {
     private TensorImage prepareInput() {
         TensorImage lrImage = TensorImage.fromBitmap(lrImg);
         ImageProcessor imageProcessor = new ImageProcessor.Builder()
-                .add(new ResizeOp(270, 480, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+                .add(new ResizeOp(height, width, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
                 .add(new NormalizeOp(0.0f, 255.0f))
                 .build();
         lrImage = imageProcessor.process(lrImage);

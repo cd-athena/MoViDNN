@@ -8,24 +8,24 @@ import tensorflow as tf
 def build(scale_factor=4, num_channels=3, input_shape=(270, 540, 3)):
     inp = Input(shape=input_shape)
     # First Layer, Important, save it
-    x = Conv2D(filters=8, kernel_size=(3, 3), padding='same', kernel_initializer="Orthogonal")(inp)
+    x = Conv2D(filters=16, kernel_size=(3, 3), padding='same', kernel_initializer="Orthogonal")(inp)
     x = ReLU()(x)
     res_init = x
     # Processing and residual connections
-    dx = Conv2D(filters=8, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(x)
+    dx = Conv2D(filters=16, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(x)
     dx = ReLU()(dx)
     # Add first layer to second
     dx_2 = Add()([dx, res_init])
-    dx_2 = Conv2D(filters=8, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_2)
+    dx_2 = Conv2D(filters=16, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_2)
     dx_2 = ReLU()(dx_2)
     # Add first two layers to third
     dx_3 = Add()([dx_2, dx, res_init])
-    dx_3 = Conv2D(filters=8, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_3)
+    dx_3 = Conv2D(filters=16, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_3)
     dx_3 = ReLU()(dx_3)
     # Add all layers to forth
     dx_4 = Add()([dx_3, dx_2, dx, res_init])
     # Final process before upscale
-    dx_4 = Conv2D(filters=8, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_4)
+    dx_4 = Conv2D(filters=16, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_4)
     dx_4 = ReLU(max_value=1)(dx_4)
     # Upscale
     up_x = Conv2D(filters=num_channels * (scale_factor ** 2), kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_4)

@@ -5,13 +5,16 @@ import cv2
 
 
 class DIV2K(tf.keras.utils.Sequence):
-    def __init__(self, data_root, scale_factor=2, batch_size=32, patch_size=48, type='train'):
+    def __init__(self, data_root, scale_factor=2, batch_size=32, patch_size=48, type="train"):
         self.data_root = data_root
         self.scale_factor = scale_factor
         self.batch_size = batch_size
-        self.image_ids = range(1, 802)
+        self.type = "train"
+        if type == "train":
+            self.image_ids = range(1, 781)
+        else:
+            self.image_ids = range(781, 800)
         self.patch_size = patch_size
-        self.type = 'train'
 
     def __getitem__(self, idx):
         if self.patch_size > 0:
@@ -40,7 +43,7 @@ class DIV2K(tf.keras.utils.Sequence):
 
     def _get_image_pair(self, id):
         image_id = f'{id:04}'
-        hr_file = f'{self.data_root}/DIV2K_{self.type}_HR/{image_id}.png'
+        hr_file = f'{self.data_root}/DIV2K_{self.type}_LR_bicubic/X1/{image_id}x1.png'
         hr = self.get_image(hr_file).astype(np.float32)
         if self.patch_size > 0:
             hr = self._crop_center(hr, self.patch_size, self.patch_size)
