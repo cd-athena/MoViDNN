@@ -2,8 +2,6 @@ from tensorflow.keras.layers import Conv2D, Input, ReLU, Add
 from tensorflow.keras.models import Model
 import tensorflow as tf
 
-# TODO Change the residual structure here
-
 
 def build(scale_factor=4, num_channels=3, input_shape=(270, 540, 3)):
     inp = Input(shape=input_shape)

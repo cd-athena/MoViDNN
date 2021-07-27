@@ -22,22 +22,14 @@ def calculate_PSNR(input_path, gt_path):
     print(ssim)
 
 
-def normal_sr(model_file, input_image):
+def normal_sr(model_file, input_image, output_name):
     lr = cv2.imread(input_image, -1).astype(np.float32)
     lr = lr / 255.
     lr = np.expand_dims(lr, 0)
     model = tf.keras.models.load_model(model_file)
     sr = model.predict(lr).squeeze()
-    hr = cv2.imread("./DIV2K/DIV2K_train_HR/0001.png", -1)
-    hr = cv2.resize(hr, (1920, 1080), interpolation=cv2.INTER_CUBIC)
-    hr = hr / 255.
-    print(sr.shape)
-    print(hr.shape)
-    psnr = PSNR(hr, sr, data_range=255)
-    print(psnr)
     sr_img = np.round(sr * 255.).astype(np.uint8).squeeze()
-    hr = np.round(hr * 255.).astype(np.uint8).squeeze()
-    cv2.imwrite("./predict_x4.png", sr_img)
+    cv2.imwrite(output_name, sr_img)
 
 
 def quantized_sr(model_file, input_image):
@@ -64,6 +56,9 @@ def quantized_sr(model_file, input_image):
 
     return sr_img
 
-calculate_PSNR("./quant_new_x4.png", "./DIV2K/DIV2K_train_LR_bicubic/X1/0001x1.png")
 # quantized_sr(model_file="./QuantModels/srabrnet_x4.tflite", input_image="./DIV2K/DIV2K_train_LR_bicubic/X4/0001x4.png")
-# normal_sr(model_file="./Checkpoints/SRABRNet_x4", input_image="./DIV2K/DIV2K_train_LR_bicubic/X4/0001x4.png")
+# normal_sr(model_file="./Checkpoints/SRNet_x2", input_image="./DIV2K/DIV2K_train_LR_bicubic/X2/0001x2.png",
+#           output_name="./srnet_x2.png")
+calculate_PSNR("./srnet_x2.png", "./DIV2K/DIV2K_train_LR_bicubic/X1/0001x1.png")
+calculate_PSNR("./srnet_x3.png", "./DIV2K/DIV2K_train_LR_bicubic/X1/0001x1.png")
+calculate_PSNR("./srnet_x4.png", "./DIV2K/DIV2K_train_LR_bicubic/X1/0001x1.png")
