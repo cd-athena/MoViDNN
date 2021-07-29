@@ -171,7 +171,6 @@ public class DNNActivity extends AppCompatActivity {
             gpuDelegate = new GpuDelegate(delegateOptions);
             options.addDelegate(gpuDelegate);
             srModel = new Interpreter(loadModelFile(modelName + ".tflite"), options);
-            Log.e("EKREM", "Model Initalized with GPU support: " + srModel.getInputTensor(0).name());
         } catch (IOException e) {
             Log.e("EKREM:" ,"Error while initializing model with GPU: " + e);
         }
@@ -185,7 +184,6 @@ public class DNNActivity extends AppCompatActivity {
             nnApiDelegate = new NnApiDelegate();
             options.addDelegate(nnApiDelegate);
             srModel = new Interpreter(loadModelFile(modelName + ".tflite"), options);
-            Log.e("EKREM", "Model Initalized with NNAPI support: " + srModel.getInputTensor(0).name());
         } catch (IOException e) {
             Log.e("EKREM:" ,"Error while initializing model with NNAPI: " + e);
         }
@@ -195,7 +193,6 @@ public class DNNActivity extends AppCompatActivity {
         closeAllDelagates();
         try {
             srModel = new Interpreter(loadModelFile(modelName + ".tflite"));
-            Log.e("EKREM", "Model Initalized: " + srModel.getInputTensor(0).name());
         } catch (IOException e) {
             Log.e("EKREM:" ,"Error while initializing model: " + e);
         }
@@ -384,17 +381,20 @@ public class DNNActivity extends AppCompatActivity {
                 TensorImage srImage = prepareOutput();
                 long startTime = System.currentTimeMillis();
                 srModel.run(lrImage.getBuffer(), srImage.getBuffer());
+                Log.e("EKREM:", "SR Run time: " + (System.currentTimeMillis() - startTime));
                 difference += (System.currentTimeMillis() - startTime);
                 Bitmap srImg = tensorToBitmap(srImage);
                 srFrames.add(srImg);
             }
-            int numOfFrames = videoFrames.size();
+            int numOfFrames = srFrames.size();
+            Log.e("EKREM", "Num of SR Frames: " + numOfFrames);
             difference /= numOfFrames;
             executionTimeView.setText("Average SR Execution Time: " + difference+ "ms - " + 1000/difference + "fps");
             // Change the displayed frame
             display.setImageBitmap(srFrames.get(5));
             Toast.makeText(this, "Saving SR video, this will take some time!", Toast.LENGTH_LONG).show();
             saveSrVideo();
+            srFrames.clear();
         }
         else {
             Toast.makeText(this, "Please load a model and video first!", Toast.LENGTH_SHORT).show();

@@ -4,13 +4,13 @@ import numpy as np
 import pathlib
 
 
-SAVED_MODEL = "./Checkpoints/SRNet_x4"
-MODEL_NAME = "srnet_x4.tflite"
+SAVED_MODEL = "./Checkpoints/SRNetMod_x4"
+MODEL_NAME = "srabrnet_x4.tflite"
 QUANT_MODEL_PATH = "./QuantModels/" + MODEL_NAME
 DATA_PATH = "./DIV2K/"
 SCALE = 4
 INPUT_SHAPE = [1, 270, 480, 3]
-#SCALE = 3
+# SCALE = 3
 #INPUT_SHAPE = [1, 360, 640, 3]
 # SCALE = 2
 # INPUT_SHAPE = [1, 540, 960, 3]
@@ -32,7 +32,9 @@ def simple_quantize(scale_factor, model_name):
     # Get tf.lite converter instance
     converter = tf.lite.TFLiteConverter.from_concrete_functions([concrete_func])
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
-    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
+    # converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
+    converter.target_spec.supported_types = [tf.float16]
+    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
     converter.representative_dataset = representative_dataset_gen
 
     tflite_quant_model = converter.convert()

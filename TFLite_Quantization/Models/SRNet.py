@@ -2,6 +2,7 @@ from tensorflow.keras.layers import Conv2D, Input, ReLU, Add
 from tensorflow.keras.models import Model
 import tensorflow as tf
 
+# Too slow, find a way to speed up (450 ms !!!)
 
 def build(scale_factor=4, num_channels=3, input_shape=(270, 540, 3)):
     inp = Input(shape=input_shape)
@@ -20,15 +21,14 @@ def build(scale_factor=4, num_channels=3, input_shape=(270, 540, 3)):
     dx_3 = Add()([dx_2, dx, res_init])
     dx_3 = Conv2D(filters=16, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_3)
     dx_3 = ReLU()(dx_3)
-    # Add all layers to forth
-    dx_4 = Add()([dx_3, dx_2, dx, res_init])
-    # Final process before upscale
-    dx_4 = Conv2D(filters=16, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_4)
-    dx_4 = ReLU(max_value=1)(dx_4)
     # Upscale
-    up_x = Conv2D(filters=num_channels * (scale_factor ** 2), kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_4)
+    up_x = Conv2D(filters=num_channels * (scale_factor ** 2), kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_3)
     up_x = ReLU(max_value=1)(up_x)
     # Output
-    outputs = tf.nn.depth_to_space(up_x, scale_factor)
+    up = tf.nn.depth_to_space(up_x, scale_factor)
+    # Process upscaled images for deblocking
+    up_1 = Conv2D(filters=8, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(up)
+    up_2 = Conv2D(filters=3, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(up_1)
+    output = ReLU(max_value=1)(up_2)
 
-    return Model(inp, outputs)
+    return Model(inp, output)
