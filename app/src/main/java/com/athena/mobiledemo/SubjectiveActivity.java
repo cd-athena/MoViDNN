@@ -3,15 +3,22 @@ package com.athena.mobiledemo;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.MediaController;
 import android.widget.TextView;
@@ -38,26 +45,24 @@ public class SubjectiveActivity extends AppCompatActivity {
 
     public List<Integer>    rate = new ArrayList<>();
     public List<String>     video_id = new ArrayList<>();
-    public List<String>     video_paths = new ArrayList<String>();
+    public List<String>     video_paths = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subjective_test);
-
 
         rate.clear();
         video_id.clear();
         // Get all test videos
         String video_folder_string = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults";
-        Log.i("Minh", "==> Video folder: " + video_folder_string);
         File directory = new File(video_folder_string);
 
         File[] files = directory.listFiles();
 
         for (int i = 0; i < files.length; i++) {
             video_paths.add(files[i].getAbsolutePath());
+            Log.i("Minh", "video_path " + i + ": " + video_paths.get(video_paths.size()-1));
         }
         onSubjectiveTestRunning();
     }
@@ -93,23 +98,24 @@ public class SubjectiveActivity extends AppCompatActivity {
     }
 
     protected void onTestVideoEnd(int video_index) {
-        String[] rates_str = {"1: Very poor", "2: Poor", "3: Average", "4: Good", "5: Excellent"};
-        int[] rates_int = {1, 2, 3, 4, 5};
+        String[] rates_str = {"5: Excellent", "4: Good", "3: Fair", "2: Poor", "1: Bad"};
+        int[] rates_int = {5, 4, 3, 2, 1};
         current_num_videos++;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Rate this video");
+        builder.setTitle("How is the quality of this video?");
         builder.setItems(rates_str, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 rate.add(rates_int[which]);
                 String videoName = "video_" + String.valueOf(video_index);
                 video_id.add(videoName);
-                Log.e("Minh", "===> Video " + rate.size() + ": "
+                Log.e("Minh", "===> Video # " + rate.size() + ". Rate: "
                         + rate.get(rate.size()-1) + " for video "
                         + video_id.get(video_id.size()-1));
 
-                if (current_num_videos == 3) {
+                if (current_num_videos == 1) {
+                    current_num_videos = 0;
                     onSubjectTestEnd();
                     return;
                 }
@@ -171,6 +177,29 @@ public class SubjectiveActivity extends AppCompatActivity {
         catch (IOException e) {
             e.printStackTrace();
         }
+
+        String[] options = {"Again", "Home"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setNegativeButton(options[1], new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(SubjectiveActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        builder.setMessage("Thanks for joining our subjective test");
+        builder.setPositiveButton(options[0], new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(SubjectiveActivity.this, SubjectiveInstruction.class);
+                startActivity(intent);
+            }
+        });
+
+        builder.show();
+
         Log.i("MINH", "////////////// TEST SESSION ENDED /////////////");
     }
 

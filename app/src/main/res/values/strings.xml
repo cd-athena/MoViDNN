@@ -6,8 +6,14 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-    <string name="instruction">This is the instruction for the subject before doing the test. Please read it carefully!
-                Please make sure that you base your rating on your experience and not on the content that you were shown. The rating scale is referenced as follows:</string>
+    <string name="instruction">This is the instruction for the subject before doing the test. Please read it carefully!\n\n
+        Please make sure that you base your rating on your experience and not on the content that you were shown. Each time a sequence is shown, you should judge its quality by using one of the five levels
+of the following scale:\n\n
+                \t\t\t\t5: Excellent\n
+                \t\t\t\t4: Good\n
+                \t\t\t\t3: Fair\n
+                \t\t\t\t2: Poor\n
+                \t\t\t\t1: Bad</string>
     <string name="name">Name</string>
     <string name="gender">Gender</string>
     <string name="age">Age</string>
