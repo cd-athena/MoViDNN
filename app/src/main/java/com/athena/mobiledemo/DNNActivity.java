@@ -217,6 +217,10 @@ public class DNNActivity extends AppCompatActivity {
         // Check the model name and determine the scale
         String scale = modelName.split("_")[1];
         switch (scale) {
+            case "x1":
+                width = 1920;
+                height = 1080;
+                break;
             case "x2":
                 width = 960;
                 height = 540;

@@ -10,7 +10,8 @@ from div2k import DIV2K
 
 def evaluate(model_file, scale):
     model = tf.keras.models.load_model(model_file)
-    test_set = DIV2K("./DIV2K/", scale_factor=scale, patch_size=0, type="val")
+    test_set = DIV2K("./DIV2K/", noise_level=50, batch_size=1, patch_size=0, type="train")
+    # test_set = DIV2K("./DIV2K/", scale_factor=scale, patch_size=0, type="val")
     PSNRS = []
     SSIMS = []
     BIC_PSNRS = []
@@ -42,9 +43,6 @@ def evaluate(model_file, scale):
 # PSNRS, SSIMS, BIC_PSNRS, BIC_SSIMS = evaluate("./Checkpoints/SRNetMod_x3", 3)
 # PSNRS, SSIMS, BIC_PSNRS, BIC_SSIMS = evaluate("./Checkpoints/SRABRNetNonVal_x2", 2)
 
-def draw_graphs(data, name):
-    pass
-
 
 def calculate_PSNR(input_path, gt_path):
     input = cv2.imread(input_path, -1).squeeze()
@@ -65,13 +63,12 @@ def normal_sr(model_file, input_image, output_name):
     cv2.imwrite(output_name, sr_img)
 
 
-def quantized_sr(model_file, input_image):
+def quantized_sr(model_file, input_image, output_name):
     lr = cv2.imread(input_image, -1).astype(np.float32)
     lr = lr / 255.
 
     interpreter = tf.lite.Interpreter(model_path=model_file)
     input_details = interpreter.get_input_details()
-    input_shape = input_details[0]['shape']
     input_index = interpreter.get_input_details()[0]["index"]
     output_index = interpreter.get_output_details()[0]["index"]
     # width = lr.shape[0]
@@ -85,9 +82,16 @@ def quantized_sr(model_file, input_image):
     print("Execution time: {:.2f} s".format(time.time() - t1))
     sr = interpreter.get_tensor(output_index)
     sr_img = np.round(sr * 255.).astype(np.uint8).squeeze()
-    cv2.imwrite("./srnet_quant_no_x3.png", sr_img)
+    cv2.imwrite(output_name, sr_img)
 
     return sr_img
+
+
+# normal_sr(model_file="./Checkpoints/DnCNN_25", input_image="./NoisyTest/DIV2K_gaussian25_0136x1.png",
+#           output_name="./dncn_25_0136.png")
+
+quantized_sr(model_file="./QuantModels/dncnn_25.tflite", input_image="./NoisyTest/DIV2K_gaussian25_0136x1.png",
+             output_name="./dncnn_quant_25_0136.png")
 
 # quantized_sr(model_file="./QuantModels/srnet_x3.tflite", input_image="./DIV2K/DIV2K_train_LR_bicubic/X3/0790x3.png")
 # normal_sr(model_file="./Checkpoints/SRNetMod_x2", input_image="./DIV2K/DIV2K_train_LR_bicubic/X2/0791x2.png", output_name="./srnet_x2.png")

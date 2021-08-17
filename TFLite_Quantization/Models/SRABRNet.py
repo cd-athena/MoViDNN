@@ -21,7 +21,8 @@ def build(scale_factor=2, num_channels=3, input_shape=(270, 540, 3)):
     dx_3 = Conv2D(filters=16, kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_3)
     dx_3 = ReLU(max_value=1)(dx_3)
     # Upscale
-    up_x = Conv2D(filters=num_channels * (scale_factor ** 2), kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_3)
+    dx_4 = Add()([dx_3, dx_2, dx, res_init])
+    up_x = Conv2D(filters=num_channels * (scale_factor ** 2), kernel_size=(3, 3), padding="same", kernel_initializer="Orthogonal")(dx_4)
     up_x = ReLU(max_value=1)(up_x)
     # Output
     outputs = tf.nn.depth_to_space(up_x, scale_factor)
