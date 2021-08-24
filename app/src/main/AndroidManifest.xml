@@ -36,6 +36,10 @@
         <activity
             android:name=".SubjectiveInstruction"
             android:screenOrientation="landscape"
+            android:parentActivityName=".SubjectiveConfig"/>
+        <activity
+            android:name=".SubjectiveConfig"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>

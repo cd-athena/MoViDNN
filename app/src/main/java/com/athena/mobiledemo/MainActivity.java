@@ -17,9 +17,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        dnnButton = (Button) findViewById(R.id.dnnButton);
-        abrButton = (Button) findViewById(R.id.abrButton);
-        subjectiveButton = (Button) findViewById(R.id.subjectiveButton);
+        dnnButton = findViewById(R.id.dnnButton);
+        abrButton = findViewById(R.id.abrButton);
+        subjectiveButton = findViewById(R.id.subjectiveButton);
         assignOnClickFunctions();
     }
 
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startSubjective(View view) {
-        Intent dnnIntent = new Intent(this, SubjectiveInstruction.class);
-        startActivity(dnnIntent);
+        Intent subjectiveIntent = new Intent(this, SubjectiveConfig.class);
+        startActivity(subjectiveIntent);
     }
 }

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SubjectiveConfig">
+
+
+    <Button
+        android:id="@+id/networkSelectionButton"
+        android:layout_width="212dp"
+        android:layout_height="85dp"
+        android:layout_marginTop="16dp"
+        android:text="Select Networks"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.252" />
+
+    <Button
+        android:id="@+id/scaleSelectionButton"
+        android:layout_width="212dp"
+        android:layout_height="85dp"
+        android:layout_marginTop="46dp"
+        android:text="Select Scales"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/networkSelectionButton" />
+
+    <Button
+        android:id="@+id/videoSelectionButton"
+        android:layout_width="212dp"
+        android:layout_height="85dp"
+        android:layout_marginTop="46dp"
+        android:text="Select Videos"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scaleSelectionButton" />
+
+
+    <Button
+        android:id="@+id/nextButton"
+        android:layout_width="212dp"
+        android:layout_height="85dp"
+        android:layout_marginTop="96dp"
+        android:text="Next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/videoSelectionButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
