@@ -2,45 +2,48 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.athena.mobiledemo">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!--    dKeep screen on-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/athena_logo"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/athena_logo_round"
         android:supportsRtl="true"
-        android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.MobileDemo">
-
         <activity
-            android:name=".ABRActivity"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity" />
-
-        <activity
-            android:name=".SubjectiveActivity"
-            android:screenOrientation="landscape"
-            android:parentActivityName=".SubjectiveInstruction" />
+            android:name=".DNNConfig"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".DNNActivity"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".SubjectiveInstruction"
-            android:screenOrientation="landscape"
-            android:parentActivityName=".SubjectiveConfig"/>
+            android:parentActivityName=".DNNConfig"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SubjectiveConfig"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SubjectiveInstruction"
+            android:parentActivityName=".SubjectiveConfig"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".SubjectiveActivity"
+            android:parentActivityName=".SubjectiveInstruction"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".ABRActivity"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

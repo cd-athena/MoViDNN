@@ -27,7 +27,6 @@ import org.jcodec.api.android.AndroidSequenceEncoder;
 import org.jcodec.common.AndroidUtil;
 import org.jcodec.common.io.FileChannelWrapper;
 import org.jcodec.common.io.NIOUtils;
-import org.jcodec.common.model.Picture;
 import org.jcodec.common.model.Rational;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -48,7 +47,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.SeekableByteChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -71,26 +69,22 @@ class SortedFrame implements Comparable<SortedFrame> {
 }
 
 public class DNNActivity extends AppCompatActivity {
+    // Data from the setup
+    Bundle data;
     // Display Objects
-    Spinner networkSpinner;
-    Button initButton;
-    Button startButton;
-    Button videoLoadButton;
-    RadioGroup acceleratorPicker;
-    RadioButton selectedAccelerator;
+    Button doneButton;
     ImageView display;
     TextView executionTimeView;
     // Variables
-    String modelName;
+    String selectedModel;
+    String selectedAccelerator;
+    String[] selectedVideos;
     Interpreter srModel;
     Interpreter.Options options;
     GpuDelegate gpuDelegate;
     NnApiDelegate nnApiDelegate;
     CompatibilityList compatList;
     Bitmap lrImg;
-    String[] availableModels;
-    Boolean isVideoReady = false; // To check if input video is loaded before running SR
-    Boolean isDNNReady = false; // To check if the DNN is loaded before running SR
     final File resultsDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults");
     // Input variables
     int width = 480;
@@ -102,13 +96,13 @@ public class DNNActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        data = this.getIntent().getExtras();
+        selectedModel = data.getString("SELECTED_NETWORK");
+        selectedAccelerator = data.getString("SELECTED_ACCELERATOR");
+        selectedVideos = data.getStringArray("SELECTED_VIDEOS");
         setContentView(R.layout.activity_dnn);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        networkSpinner = findViewById(R.id.nnListSpinner);
-        initButton = findViewById(R.id.dnnInitButton);
-        startButton = findViewById(R.id.dnnStartButton);
-        videoLoadButton = findViewById(R.id.videoLoadButton);
-        acceleratorPicker = findViewById(R.id.acceleratorPicker);
+        doneButton = findViewById(R.id.doneButton);
         display = findViewById(R.id.srImage);
         executionTimeView = findViewById(R.id.executionTimeView);
         compatList = new CompatibilityList();
@@ -118,29 +112,17 @@ public class DNNActivity extends AppCompatActivity {
                 Log.e ("ALERT", "Could not create the directories");
             }
         }
-
-        fillSpinner();
         setOnClicks();
+        runSR();
     }
 
-    public void fillSpinner() {
-        try {
-            availableModels = getAssets().list("models/");
-            for (int i =0; i < availableModels.length; i++) {
-                availableModels[i] = availableModels[i].replace(".tflite", "");
-            }
-        } catch (IOException e) {
-            Log.e("EKREM:", "Error while reading list of models");
-        }
-        ArrayAdapter<String> nnSpinnerArray = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, availableModels);
-        nnSpinnerArray.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        networkSpinner.setAdapter(nnSpinnerArray);
-    }
 
     private void setOnClicks() {
-        initButton.setOnClickListener(this::initializeDNN);
-        startButton.setOnClickListener(this::runSR);
-        videoLoadButton.setOnClickListener(this::readFrames);
+        doneButton.setOnClickListener(this::completeTest);
+    }
+
+    private void completeTest(View view) {
+
     }
 
     private MappedByteBuffer loadModelFile(String modelName) throws IOException {
@@ -170,7 +152,7 @@ public class DNNActivity extends AppCompatActivity {
             GpuDelegate.Options delegateOptions = compatList.getBestOptionsForThisDevice();
             gpuDelegate = new GpuDelegate(delegateOptions);
             options.addDelegate(gpuDelegate);
-            srModel = new Interpreter(loadModelFile(modelName + ".tflite"), options);
+            srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"), options);
         } catch (IOException e) {
             Log.e("EKREM:" ,"Error while initializing model with GPU: " + e);
         }
@@ -183,7 +165,7 @@ public class DNNActivity extends AppCompatActivity {
             // GPU delegate
             nnApiDelegate = new NnApiDelegate();
             options.addDelegate(nnApiDelegate);
-            srModel = new Interpreter(loadModelFile(modelName + ".tflite"), options);
+            srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"), options);
         } catch (IOException e) {
             Log.e("EKREM:" ,"Error while initializing model with NNAPI: " + e);
         }
@@ -192,25 +174,10 @@ public class DNNActivity extends AppCompatActivity {
     private void initializeDNNwithCPU() {
         closeAllDelagates();
         try {
-            srModel = new Interpreter(loadModelFile(modelName + ".tflite"));
+            srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"));
         } catch (IOException e) {
             Log.e("EKREM:" ,"Error while initializing model: " + e);
         }
-    }
-
-    private String getSelectedAccelerator() {
-        int selectedRadioButtonId = acceleratorPicker.getCheckedRadioButtonId();
-        if (selectedRadioButtonId == -1) {
-            Toast.makeText(this, "Please select an accelerator", Toast.LENGTH_SHORT).show();
-            return null;
-        } else {
-            selectedAccelerator = findViewById(selectedRadioButtonId);
-            return selectedAccelerator.getText().toString();
-        }
-    }
-
-    private String getSelectedModelName() {
-        return networkSpinner.getSelectedItem().toString();
     }
 
     private void setScale(String modelName) {
@@ -236,25 +203,19 @@ public class DNNActivity extends AppCompatActivity {
         }
     }
 
-    private void initializeDNN(View view) {
+    private void initializeDNN() {
         // Check the options here and run the corresponding function
-        String accelerator = getSelectedAccelerator();
-        modelName = getSelectedModelName();
-        setScale(modelName);
-        if (accelerator != null) {
-            Log.e("Ekrem:", "Accelerator Selected: " + accelerator);
-            switch (accelerator) {
-                case "CPU":
-                    initializeDNNwithCPU();
-                    break;
-                case "GPU":
-                    initializeDNNwithGPU();
-                    break;
-                case "NNAPI":
-                    initializeDNNwithNNAPI();
-                    break;
-            }
-            isDNNReady = true;
+        setScale(selectedModel);
+        switch (selectedAccelerator) {
+            case "CPU":
+                initializeDNNwithCPU();
+                break;
+            case "GPU":
+                initializeDNNwithGPU();
+                break;
+            case "NNAPI":
+                initializeDNNwithNNAPI();
+                break;
         }
     }
 
@@ -310,34 +271,32 @@ public class DNNActivity extends AppCompatActivity {
         } finally {
             NIOUtils.closeQuietly(out);
         }
-
     }
 
-    private void readFrames(View view) {
+    private void readFrames(String videoName) {
         try {
             Toast.makeText(this, "Reading and processing all frames, this will take some time !", Toast.LENGTH_LONG).show();
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/video_5_270p.mp4");
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + videoName + ".mp4");
             // File file = new File(String.valueOf(getAssets().openFd("frames/video.mp4")));
             FrameGrab grab = FrameGrab.createFrameGrab(NIOUtils.readableChannel(file));
             // For some reason it jitters in the first 3 seconds and dont get any metadata, skip them for now
             // grab.seekToSecondPrecise(1);
+            /**
             for(int i = 0; i < 60; i++) {
                 PictureWithMetadata pic = grab.getNativeFrameWithMetadata();
                 videoFrames.add(new SortedFrame(pic));
             }
+             **/
+            // Reading all frames
+            PictureWithMetadata picture;
+            while (null != (picture = grab.getNativeFrameWithMetadata())) {
+                videoFrames.add(new SortedFrame(picture));
+            }
             // Sort frames based on the times
             Collections.sort(videoFrames);
-            /**
-            // Reading all frames
-            Picture picture;
-            while (null != (picture = grab.getNativeFrame())) {
-                Bitmap bitmap = AndroidUtil.toBitmap(picture);
-                videoFrames.add(bitmap);
-            }**/
             // Setup the display in the activity
             lrImg = videoFrames.get(5).frame;
             display.setImageBitmap(lrImg);
-            isVideoReady = true;
         } catch (IOException | JCodecException e) {
             Log.e("EKREM", "Error while reading frames: " + e);
         }
@@ -375,10 +334,12 @@ public class DNNActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void runSR(View view) {
-        Toast.makeText(this, "Running SR for all frames, this will take some time!", Toast.LENGTH_LONG).show();
-        long difference = 0;
-        if (isDNNReady && isVideoReady) {
+    private void runSR() {
+        initializeDNN();
+        for(String video: selectedVideos){
+            readFrames(video);
+            Toast.makeText(this, "Running SR for all frames, this will take some time!", Toast.LENGTH_LONG).show();
+            long difference = 0;
             for(SortedFrame frame : videoFrames) {
                 lrImg = frame.frame;
                 TensorImage lrImage = prepareInput();
@@ -394,14 +355,10 @@ public class DNNActivity extends AppCompatActivity {
             Log.e("EKREM", "Num of SR Frames: " + numOfFrames);
             difference /= numOfFrames;
             executionTimeView.setText("Average SR Execution Time: " + difference+ "ms - " + 1000/difference + "fps");
-            // Change the displayed frame
-            display.setImageBitmap(srFrames.get(5));
             Toast.makeText(this, "Saving SR video, this will take some time!", Toast.LENGTH_LONG).show();
             saveSrVideo();
             srFrames.clear();
-        }
-        else {
-            Toast.makeText(this, "Please load a model and video first!", Toast.LENGTH_SHORT).show();
+            videoFrames.clear();
         }
     }
 }

@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SubjectiveConfig">
-
+    tools:context=".DNNConfig">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -21,39 +20,39 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
-            android:id="@+id/networkSelectionButton"
+            android:id="@+id/network_select_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
             android:backgroundTint="#555454"
-            android:text="Select DNN Networks" />
+            android:text="Select DNN Model" />
 
         <Button
-            android:id="@+id/scaleSelectionButton"
+            android:id="@+id/accelerator_picker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
             android:backgroundTint="#555454"
-            android:text="Select Scales"
+            android:text="Select Accelerator"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            android:id="@+id/videoSelectionButton"
+            android:id="@+id/video_picker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
             android:backgroundTint="#555454"
-            android:text="Select Videos"
+            android:text="Select Video"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            android:id="@+id/nextButton"
+            android:id="@+id/start_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="#555454"
-            android:text="Next" />
+            android:text="Start" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,84 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".DNNActivity">
 
-    <Button
-        android:id="@+id/dnnStartButton"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginBottom="32dp"
-        android:text="Start"
-        app:layout_constraintBottom_toBottomOf="@id/dnnInitButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dnnInitButton" />
-
-    <Spinner
-        android:id="@+id/nnListSpinner"
-        android:layout_width="409dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:hapticFeedbackEnabled="true"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@id/acceleratorPicker"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/srImage" />
-
-    <Button
-        android:id="@+id/dnnInitButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Load Model"
-        app:layout_constraintBottom_toTopOf="@+id/dnnStartButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/acceleratorPicker" />
-
-    <RadioGroup
-        android:id="@+id/acceleratorPicker"
-        android:layout_width="409dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/dnnInitButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/nnListSpinner">
-
-        <RadioButton
-            android:id="@+id/cpuRadio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="CPU" />
-
-        <RadioButton
-            android:id="@+id/gpuRadio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="GPU" />
-
-        <RadioButton
-            android:id="@+id/nnapiRadio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="NNAPI" />
-    </RadioGroup>
-
     <ImageView
         android:id="@+id/srImage"
         android:layout_width="400dp"
         android:layout_height="400dp"
-        app:layout_constraintBottom_toTopOf="@+id/nnListSpinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -97,17 +23,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dnnStartButton" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/videoLoadButton"
+        android:id="@+id/doneButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Load Video"
-        app:layout_constraintBottom_toTopOf="@+id/dnnInitButton"
+        android:text="Done"
+        app:layout_constraintBottom_toTopOf="@+id/executionTimeView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/acceleratorPicker" />
+        app:layout_constraintTop_toBottomOf="@+id/srImage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

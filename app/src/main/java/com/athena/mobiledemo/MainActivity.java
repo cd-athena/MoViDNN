@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startDNN(View view) {
-        Intent dnnIntent = new Intent(this, DNNActivity.class);
+        Intent dnnIntent = new Intent(this, DNNConfig.class);
         startActivity(dnnIntent);
     }
 

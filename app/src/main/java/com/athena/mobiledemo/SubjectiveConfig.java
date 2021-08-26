@@ -16,6 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SubjectiveConfig extends AppCompatActivity {
+    // Status check
+    boolean[] setup = {false, false, false};
+    Button nextButton;
 
     public final static String[] networks = new String[]{"NetworkA", "NetworkB", "NetworkC"};
     private static boolean[]     checkedNetworks = new boolean[] {false, false, false};
@@ -26,13 +29,23 @@ public class SubjectiveConfig extends AppCompatActivity {
     public final static String[] videos = new String[]{"BigBuckBunny", "StearsOfSteel", "TBD"};
     private static boolean[]     checkedVideos = new boolean[] {false, false, false};
 
+    private boolean checkStartStatus() {
+        for (boolean b : setup) if (!b) return false;
+        return true;
+    }
+
+    private void approveColor(Button button) {
+        button.setBackgroundColor(getColor(R.color.athena_blue));
+        if (checkStartStatus())
+            nextButton.setBackgroundColor(getColor(R.color.athena_blue));
+    }
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subjective_config);
 
-        Button nextButton = findViewById(R.id.nextButton);
+        nextButton = findViewById(R.id.nextButton);
         nextButton.setOnClickListener(this::startInstruction);
 
         // For network selection
@@ -48,10 +61,6 @@ public class SubjectiveConfig extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                         checkedNetworks[which] = isChecked;
                         String currentItem = networkList.get(which);
-
-                        // Notify the current action TODO: need to be removed
-                        Toast.makeText(getApplicationContext(),
-                                currentItem + " " + isChecked, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -67,6 +76,10 @@ public class SubjectiveConfig extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         if(ifNothingChecked(checkedNetworks))
                             alertBox("No network is selected, please select at least one");
+                        else {
+                            setup[0] = true;
+                            approveColor(networkSelectionButton);
+                        }
                     }
                 });
 
@@ -96,10 +109,6 @@ public class SubjectiveConfig extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                         checkedScales[which] = isChecked;
                         String currentItem = scaleList.get(which);
-
-                        // Notify the current action TODO: need to be removed
-                        Toast.makeText(getApplicationContext(),
-                                currentItem + " " + isChecked, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -115,6 +124,10 @@ public class SubjectiveConfig extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         if(ifNothingChecked(checkedScales))
                             alertBox("No scale is selected, please select at least one");
+                        else {
+                            setup[1] = true;
+                            approveColor(scaleSelectionButton);
+                        }
                     }
                 });
 
@@ -144,10 +157,6 @@ public class SubjectiveConfig extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                         checkedVideos[which] = isChecked;
                         String currentItem = videoList.get(which);
-
-                        // Notify the current action TODO: need to be removed
-                        Toast.makeText(getApplicationContext(),
-                                currentItem + " " + isChecked, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -163,6 +172,10 @@ public class SubjectiveConfig extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         if(ifNothingChecked(checkedVideos))
                             alertBox("No video is selected, please select at least one");
+                        else {
+                            setup[2] = true;
+                            approveColor(videoSelectionButton);
+                        }
                     }
                 });
 
@@ -199,9 +212,7 @@ public class SubjectiveConfig extends AppCompatActivity {
     }
 
     private void startInstruction(View view) {
-        if (ifNothingChecked(checkedNetworks) ||
-                ifNothingChecked(checkedScales) ||
-                ifNothingChecked(checkedVideos))
+        if (!checkStartStatus())
             alertBox("Some parameters are not selected. Please check again");
         else {
             Intent instructionIntent = new Intent(this, SubjectiveInstruction.class);
