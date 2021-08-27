@@ -6,25 +6,25 @@ import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
 import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
 import org.jcodec.api.PictureWithMetadata;
 import org.jcodec.api.android.AndroidSequenceEncoder;
 import org.jcodec.common.AndroidUtil;
+import org.jcodec.common.DemuxerTrack;
 import org.jcodec.common.io.FileChannelWrapper;
 import org.jcodec.common.io.NIOUtils;
 import org.jcodec.common.model.Rational;
@@ -41,14 +41,14 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 
 
 class SortedFrame implements Comparable<SortedFrame> {
@@ -68,6 +68,8 @@ class SortedFrame implements Comparable<SortedFrame> {
 
 }
 
+
+
 public class DNNActivity extends AppCompatActivity {
     // Data from the setup
     Bundle data;
@@ -75,6 +77,7 @@ public class DNNActivity extends AppCompatActivity {
     Button doneButton;
     ImageView display;
     TextView executionTimeView;
+    CircularProgressBar progressBar;
     // Variables
     String selectedModel;
     String selectedAccelerator;
@@ -93,6 +96,8 @@ public class DNNActivity extends AppCompatActivity {
     ArrayList<SortedFrame> videoFrames = new ArrayList<>();
     ArrayList<Bitmap> srFrames = new ArrayList<>();
 
+    private Handler handler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,17 +108,15 @@ public class DNNActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dnn);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         doneButton = findViewById(R.id.doneButton);
-        display = findViewById(R.id.srImage);
+        progressBar = findViewById(R.id.circularProgressBar);
         executionTimeView = findViewById(R.id.executionTimeView);
         compatList = new CompatibilityList();
-
         if (!resultsDir.exists()) {
             if (!resultsDir.mkdir()) {
                 Log.e ("ALERT", "Could not create the directories");
             }
         }
         setOnClicks();
-        runSR();
     }
 
 
@@ -122,7 +125,7 @@ public class DNNActivity extends AppCompatActivity {
     }
 
     private void completeTest(View view) {
-
+        runSR();
     }
 
     private MappedByteBuffer loadModelFile(String modelName) throws IOException {
@@ -219,19 +222,6 @@ public class DNNActivity extends AppCompatActivity {
         }
     }
 
-    private void saveImage(Bitmap bmp, String filename) throws IOException {
-        // Assume block needs to be inside a Try/Catch block.
-        OutputStream fOut = null;
-        File file = new File(resultsDir, filename + ".png"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
-        fOut = new FileOutputStream(file);
-
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-        fOut.flush(); // Not really required
-        fOut.close(); // do not forget to close the stream
-
-        MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
-    }
-
     private Bitmap tensorToBitmap(TensorImage tensorOutput) {
         // Get the output and convert it to Bitmap
         ByteBuffer SROut = tensorOutput.getBuffer();
@@ -279,6 +269,8 @@ public class DNNActivity extends AppCompatActivity {
             File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + videoName + ".mp4");
             // File file = new File(String.valueOf(getAssets().openFd("frames/video.mp4")));
             FrameGrab grab = FrameGrab.createFrameGrab(NIOUtils.readableChannel(file));
+            DemuxerTrack vt = grab.getVideoTrack();
+            int totalFrames = vt.getMeta().getTotalFrames();
             // For some reason it jitters in the first 3 seconds and dont get any metadata, skip them for now
             // grab.seekToSecondPrecise(1);
             /**
@@ -287,16 +279,33 @@ public class DNNActivity extends AppCompatActivity {
                 videoFrames.add(new SortedFrame(pic));
             }
              **/
+            progressBar.setProgress(0f);
+            // Set Progress Max
+            progressBar.setProgressMax((float) totalFrames);
             // Reading all frames
             PictureWithMetadata picture;
+            int frame = 0;
             while (null != (picture = grab.getNativeFrameWithMetadata())) {
                 videoFrames.add(new SortedFrame(picture));
+                frame += 1;
+                int finalFrame = frame;
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            Thread.sleep(20);
+                        } catch(InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        handler.post(new Runnable() {
+                            public void run() {
+                                progressBar.setProgress(finalFrame);
+                            }
+                        });
+                    }
+                }).start();
             }
             // Sort frames based on the times
             Collections.sort(videoFrames);
-            // Setup the display in the activity
-            lrImg = videoFrames.get(5).frame;
-            display.setImageBitmap(lrImg);
         } catch (IOException | JCodecException e) {
             Log.e("EKREM", "Error while reading frames: " + e);
         }
@@ -321,18 +330,6 @@ public class DNNActivity extends AppCompatActivity {
         return srImage;
     }
 
-    private void saveSrImage(TensorImage srImage) {
-        try {
-            Bitmap srImg = tensorToBitmap(srImage);
-            // Change the displayed image in the activity
-            display.setImageBitmap(srImg);
-            saveImage(srImg, "SR_Out");
-            Log.e("EKREM:", "Saved SR Image!");
-        } catch (IOException e) {
-            Log.e("EKREM:", "Error while saving the SR Image" + e);
-        }
-    }
-
     @SuppressLint("SetTextI18n")
     private void runSR() {
         initializeDNN();
@@ -340,16 +337,21 @@ public class DNNActivity extends AppCompatActivity {
             readFrames(video);
             Toast.makeText(this, "Running SR for all frames, this will take some time!", Toast.LENGTH_LONG).show();
             long difference = 0;
+            progressBar.setProgress(0f);
+            // Set Progress Max
+            progressBar.setProgressMax((float) videoFrames.size());
+            int frame_index = 0;
             for(SortedFrame frame : videoFrames) {
                 lrImg = frame.frame;
                 TensorImage lrImage = prepareInput();
                 TensorImage srImage = prepareOutput();
                 long startTime = System.currentTimeMillis();
                 srModel.run(lrImage.getBuffer(), srImage.getBuffer());
-                Log.e("EKREM:", "SR Run time: " + (System.currentTimeMillis() - startTime));
                 difference += (System.currentTimeMillis() - startTime);
                 Bitmap srImg = tensorToBitmap(srImage);
                 srFrames.add(srImg);
+                frame_index += 1;
+                progressBar.setProgressWithAnimation((float) frame_index / videoFrames.size(), 100L);
             }
             int numOfFrames = srFrames.size();
             Log.e("EKREM", "Num of SR Frames: " + numOfFrames);
