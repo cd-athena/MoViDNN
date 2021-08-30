@@ -6,10 +6,11 @@ import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,17 +18,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arthenica.ffmpegkit.FFmpegKit;
+import com.arthenica.ffmpegkit.FFmpegSession;
+import com.arthenica.ffmpegkit.ReturnCode;
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 
-import org.jcodec.api.FrameGrab;
-import org.jcodec.api.JCodecException;
-import org.jcodec.api.PictureWithMetadata;
-import org.jcodec.api.android.AndroidSequenceEncoder;
-import org.jcodec.common.AndroidUtil;
-import org.jcodec.common.DemuxerTrack;
-import org.jcodec.common.io.FileChannelWrapper;
-import org.jcodec.common.io.NIOUtils;
-import org.jcodec.common.model.Rational;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.gpu.CompatibilityList;
@@ -41,33 +36,14 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.concurrent.ExecutionException;
-
-
-class SortedFrame implements Comparable<SortedFrame> {
-    // This is used to store read frames
-    public final double timestamp;
-    public final Bitmap frame;
-
-    public SortedFrame(PictureWithMetadata p) {
-        frame = AndroidUtil.toBitmap(p.getPicture());
-        timestamp = p.getTimestamp();
-    }
-
-    @Override
-    public int compareTo(SortedFrame o2) {
-        return Double.compare(timestamp, o2.timestamp);
-    }
-
-}
-
 
 
 public class DNNActivity extends AppCompatActivity {
@@ -89,12 +65,14 @@ public class DNNActivity extends AppCompatActivity {
     CompatibilityList compatList;
     Bitmap lrImg;
     final File resultsDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults");
+    final File framesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/Frames");
+    final File srFramesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/SRFrames");
     // Input variables
     int width = 480;
     int height = 270;
     // Video processing variables
-    ArrayList<SortedFrame> videoFrames = new ArrayList<>();
-    ArrayList<Bitmap> srFrames = new ArrayList<>();
+    ArrayList<String> videoFramePaths = new ArrayList<>();
+    ArrayList<String> srFramePaths = new ArrayList<>();
 
     private Handler handler = new Handler();
 
@@ -113,6 +91,16 @@ public class DNNActivity extends AppCompatActivity {
         compatList = new CompatibilityList();
         if (!resultsDir.exists()) {
             if (!resultsDir.mkdir()) {
+                Log.e ("ALERT", "Could not create the directories");
+            }
+        }
+        if (!srFramesDir.exists()) {
+            if (!srFramesDir.mkdir()) {
+                Log.e ("ALERT", "Could not create the directories");
+            }
+        }
+        if (!framesDir.exists()) {
+            if (!framesDir.mkdir()) {
                 Log.e ("ALERT", "Could not create the directories");
             }
         }
@@ -246,68 +234,32 @@ public class DNNActivity extends AppCompatActivity {
         return bmpImage;
     }
 
-    private void saveSrVideo() {
-        FileChannelWrapper out = null;
-        File output = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/test.mp4");
+    private void saveSrVideo(String videoName, String fps) {
+        String inputPath = srFramesDir + "/srframe_%04d.png";
+        String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + videoName + "_SR.mp4";
+        FFmpegSession ffmpegSession = FFmpegKit.execute("-y -i " + inputPath + " -s 1920x1080 -vf format=yuv420p,fps=" + fps + " -preset ultrafast " + outputPath);
 
-        try { out = NIOUtils.writableFileChannel(output.getAbsolutePath());
-            AndroidSequenceEncoder encoder = new AndroidSequenceEncoder(out, Rational.R(15, 1));
-            for (Bitmap bitmap : srFrames) {
-                encoder.encodeImage(bitmap);
-            }
-            encoder.finish();
-        } catch (IOException e) {
-            Log.e("EKREM", "Error while encoding video: " + e);
-        } finally {
-            NIOUtils.closeQuietly(out);
+        if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
+            Log.e("EKREM", "Saved SR video successfully");
+        } else {
+            // Failure
+            Log.d("EKREM:", String.format("Saving SR video failed with state %s and rc %s.%s", ffmpegSession.getState(),
+                    ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
         }
     }
 
-    private void readFrames(String videoName) {
-        try {
-            Toast.makeText(this, "Reading and processing all frames, this will take some time !", Toast.LENGTH_LONG).show();
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + videoName + ".mp4");
-            // File file = new File(String.valueOf(getAssets().openFd("frames/video.mp4")));
-            FrameGrab grab = FrameGrab.createFrameGrab(NIOUtils.readableChannel(file));
-            DemuxerTrack vt = grab.getVideoTrack();
-            int totalFrames = vt.getMeta().getTotalFrames();
-            // For some reason it jitters in the first 3 seconds and dont get any metadata, skip them for now
-            // grab.seekToSecondPrecise(1);
-            /**
-            for(int i = 0; i < 60; i++) {
-                PictureWithMetadata pic = grab.getNativeFrameWithMetadata();
-                videoFrames.add(new SortedFrame(pic));
-            }
-             **/
-            progressBar.setProgress(0f);
-            // Set Progress Max
-            progressBar.setProgressMax((float) totalFrames);
-            // Reading all frames
-            PictureWithMetadata picture;
-            int frame = 0;
-            while (null != (picture = grab.getNativeFrameWithMetadata())) {
-                videoFrames.add(new SortedFrame(picture));
-                frame += 1;
-                int finalFrame = frame;
-                new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            Thread.sleep(20);
-                        } catch(InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        handler.post(new Runnable() {
-                            public void run() {
-                                progressBar.setProgress(finalFrame);
-                            }
-                        });
-                    }
-                }).start();
-            }
-            // Sort frames based on the times
-            Collections.sort(videoFrames);
-        } catch (IOException | JCodecException e) {
-            Log.e("EKREM", "Error while reading frames: " + e);
+    private void readFrames(String videoName, String fps) {
+        Toast.makeText(this, "Reading and processing all frames, this will take some time !", Toast.LENGTH_LONG).show();
+        String inpuPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + videoName + ".mp4";
+        String outputPath = framesDir + "/frame_%04d.png";
+        // Execute the ffmpeg command
+        FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inpuPath + " -vf fps=" + fps + " -preset ultrafast " + outputPath);
+        if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
+            Log.e("EKREM", "Extracted frames successfully");
+        } else {
+            // Failure
+            Log.d("EKREM:", String.format("Extracting frames failed with state %s and rc %s.%s", ffmpegSession.getState(),
+                    ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
         }
     }
 
@@ -330,37 +282,80 @@ public class DNNActivity extends AppCompatActivity {
         return srImage;
     }
 
+    private void saveImage(Bitmap bmp, String filename) {
+        // Assume block needs to be inside a Try/Catch block.
+        OutputStream fOut = null;
+        File file = new File(srFramesDir, filename); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+        try {
+            fOut = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+            fOut.flush(); // Not really required
+            fOut.close(); // do not forget to close the stream
+            MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void calculatePSNR(String video) {
+        String inputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + video + ".mp4";
+        String referencePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + video + "_SR.mp4";
+        FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inputPath + " -i " + referencePath + " -filter_complex psnr -f null -");
+        if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
+            // Extract PSNRs
+            String out = ffmpegSession.getOutput();
+            String psnrLine = out.substring(out.lastIndexOf("PSNR"));
+            String avgPSNRLine = psnrLine.substring(psnrLine.lastIndexOf("average"), psnrLine.indexOf("min"));
+            String yPSNRLine = psnrLine.substring(psnrLine.lastIndexOf("y:"), psnrLine.indexOf("u:"));
+            String minPSNRLine = psnrLine.substring(psnrLine.lastIndexOf("min:"), psnrLine.indexOf("max:"));
+            String maxPSNRLine = psnrLine.substring(psnrLine.lastIndexOf("max:"));
+            Float PSNR = Float.valueOf(avgPSNRLine.substring(8));
+            Float yPSNR = Float.valueOf(yPSNRLine.substring(2));
+            Float minPSNR = Float.valueOf(minPSNRLine.substring(4));
+            Float maxPSNR = Float.valueOf(maxPSNRLine.substring(4));
+        } else {
+            // FAILURE
+            Log.d("EKREM:", String.format("Calculating PSNR failed with state %s and rc %s.%s", ffmpegSession.getState(),
+                    ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
+        }
+    }
+
+
     @SuppressLint("SetTextI18n")
     private void runSR() {
         initializeDNN();
         for(String video: selectedVideos){
-            readFrames(video);
+            // TODO ADD fps here
+            String fps = "24";
+            readFrames(video, fps);
             Toast.makeText(this, "Running SR for all frames, this will take some time!", Toast.LENGTH_LONG).show();
             long difference = 0;
-            progressBar.setProgress(0f);
-            // Set Progress Max
-            progressBar.setProgressMax((float) videoFrames.size());
             int frame_index = 0;
-            for(SortedFrame frame : videoFrames) {
-                lrImg = frame.frame;
+            for(String frame : videoFramePaths) {
+                lrImg = BitmapFactory.decodeFile(frame);
                 TensorImage lrImage = prepareInput();
                 TensorImage srImage = prepareOutput();
                 long startTime = System.currentTimeMillis();
                 srModel.run(lrImage.getBuffer(), srImage.getBuffer());
                 difference += (System.currentTimeMillis() - startTime);
                 Bitmap srImg = tensorToBitmap(srImage);
-                srFrames.add(srImg);
+                String img_name = String.format("srframe_%04d.png", frame_index);
                 frame_index += 1;
-                progressBar.setProgressWithAnimation((float) frame_index / videoFrames.size(), 100L);
+                saveImage(srImg, img_name);
+                srFramePaths.add(srFramesDir + "/" + img_name);
             }
-            int numOfFrames = srFrames.size();
+            int numOfFrames = srFramePaths.size();
             Log.e("EKREM", "Num of SR Frames: " + numOfFrames);
             difference /= numOfFrames;
             executionTimeView.setText("Average SR Execution Time: " + difference+ "ms - " + 1000/difference + "fps");
             Toast.makeText(this, "Saving SR video, this will take some time!", Toast.LENGTH_LONG).show();
-            saveSrVideo();
-            srFrames.clear();
-            videoFrames.clear();
+            saveSrVideo(video, fps);
+            calculatePSNR(video);
+            srFramePaths.clear();
+            videoFramePaths.clear();
         }
     }
+
 }
