@@ -6,41 +6,335 @@
     android:layout_height="match_parent"
     tools:context=".DNNActivity">
 
-    <com.mikhaellopez.circularprogressbar.CircularProgressBar
-        android:id="@+id/circularProgressBar"
+    <TextView
+        android:id="@+id/statTableTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        app:cpb_background_progressbar_color="@color/athena_purple"
-        app:cpb_background_progressbar_width="10dp"
-        app:cpb_progress_direction="to_right"
-        app:cpb_progressbar_color="@color/athena_blue"
-        app:cpb_progressbar_width="20dp"
-        app:cpb_round_border="false"
+        android:layout_marginEnd="32dp"
+        android:text="DNN Stats"
+        android:textColor="@color/athena_purple"
+        android:textSize="48dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/executionTimeView"
-        android:layout_width="wrap_content"
+    <TableLayout
+        android:id="@+id/statTable"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="SR Execution Time: "
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:stretchColumns="*"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/statTableTitle">
+
+        <TableRow
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/executionTimeTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_column="0"
+                android:fontFamily="sans-serif-black"
+                android:gravity="center_horizontal"
+                android:text="DNN Execution"
+                android:textColor="@color/athena_blue"
+                android:textSize="24dp"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+            <TextView
+                android:id="@+id/executionTimeLabel"
+                android:layout_column="0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/athena_blue"
+                android:text="Time per Frame"
+                android:textSize="20dp"/>
+            <TextView
+                android:id="@+id/executionTime"
+                android:layout_column="0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="0.0 ms"
+                android:textSize="20dp"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+            <TextView
+                android:id="@+id/executionFPSLabel"
+                android:layout_column="0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/athena_blue"
+                android:text="FPS"
+                android:textSize="20dp"/>
+            <TextView
+                android:id="@+id/fps"
+                android:layout_column="0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="0.0"
+                android:textSize="20dp"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+            <TextView
+                android:id="@+id/totalFramesLabel"
+                android:layout_column="0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/athena_blue"
+                android:text="Total Frames"
+                android:textSize="20dp"/>
+            <TextView
+                android:id="@+id/totalFrames"
+                android:layout_column="0"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="0.0"
+                android:textSize="20dp"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+            <TextView
+                android:id="@+id/psnrLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:gravity="center_horizontal"
+                android:text="PSNR"
+                android:textColor="@color/athena_blue"
+                android:textSize="24dp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/minPSNRLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="0"
+                android:gravity="center_horizontal"
+                android:text="Min"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/athena_blue"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/minPSNR"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="1"
+                android:gravity="center_horizontal"
+                android:text="0.0"
+                android:textSize="20dp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/maxPSNRLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="0"
+                android:gravity="center_horizontal"
+                android:text="Max"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/athena_blue"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/maxPSNR"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="1"
+                android:gravity="center_horizontal"
+                android:text="0.0"
+                android:textSize="20dp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/avgPSNRLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="0"
+                android:gravity="center_horizontal"
+                android:text="Average"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/athena_blue"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/avgPSNR"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="1"
+                android:gravity="center_horizontal"
+                android:text="0.0"
+                android:textSize="20dp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/yPSNRLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="0"
+                android:gravity="center_horizontal"
+                android:text="Y"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/athena_blue"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/yPSNR"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="1"
+                android:gravity="center_horizontal"
+                android:text="0.0"
+                android:textSize="20dp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/ssimLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:gravity="center_horizontal"
+                android:text="SSIM"
+                android:textColor="@color/athena_blue"
+                android:textSize="24dp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/allSSIMLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="0"
+                android:gravity="center_horizontal"
+                android:text="All"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/athena_blue"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/allSSIM"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="1"
+                android:gravity="center_horizontal"
+                android:text="0.0"
+                android:textSize="20dp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/ySSIMLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="0"
+                android:gravity="center_horizontal"
+                android:text="Y"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/athena_blue"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/ySSIM"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_column="1"
+                android:gravity="center_horizontal"
+                android:text="0.0"
+                android:textSize="20dp" />
+        </TableRow>
+    </TableLayout>
 
     <Button
         android:id="@+id/doneButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Done"
-        app:layout_constraintBottom_toTopOf="@+id/executionTimeView"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/circularProgressBar" />
+        app:layout_constraintTop_toBottomOf="@+id/statTable" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
