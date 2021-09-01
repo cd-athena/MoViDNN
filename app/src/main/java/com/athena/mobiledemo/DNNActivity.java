@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.arthenica.ffmpegkit.FFmpegKit;
@@ -76,6 +77,8 @@ public class DNNActivity extends AppCompatActivity {
     ArrayList<String> videoFramePaths = new ArrayList<>();
     ArrayList<String> srFramePaths = new ArrayList<>();
 
+    ProgressBar simpleProgressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +100,10 @@ public class DNNActivity extends AppCompatActivity {
         yPSNRView = findViewById(R.id.yPSNR);
         allSSIMView = findViewById(R.id.allSSIM);
         ySSIMView = findViewById(R.id.ySSIM);
+
+        simpleProgressBar = findViewById(R.id.determinateBar);
+        simpleProgressBar.setScaleX(6f);
+        simpleProgressBar.setScaleY(2f);
 
         compatList = new CompatibilityList();
         if (!resultsDir.exists()) {
@@ -381,48 +388,103 @@ public class DNNActivity extends AppCompatActivity {
         path.delete();
     }
 
+//    private void runThread(int progress, int max_progress) {
+//        new Thread() {
+//            public void run() {
+//                    try {
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Log.e("Minh", "===> i = " + progress);
+//                                simpleProgressBar = findViewById(R.id.determinateBar);
+//                                simpleProgressBar.setMax(max_progress);
+//                                simpleProgressBar.setProgress(progress);
+//                            }
+//                        });
+//                        Thread.sleep(100);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//            }
+//        }.start();
+//    }
+
     private void runSR() {
-        initializeDNN();
-        for(String video: selectedVideos){
-            if (!srFramesDir.exists()) {
-                if (!srFramesDir.mkdir()) {
-                    Log.e ("ALERT", "Could not create the SR frame directories");
+
+        new Thread() {
+            public void run() {
+
+                initializeDNN();
+//                int max_process = videoFramePaths.size()*selectedVideos.length;
+                for(String video: selectedVideos){
+                    if (!srFramesDir.exists()) {
+                        if (!srFramesDir.mkdir()) {
+                            Log.e ("ALERT", "Could not create the SR frame directories");
+                        }
+                    }
+                    // TODO ADD fps here, Fix Alertbox
+                    String fps = "24";
+                    // alertBox("Extracting Frames", "Please wait!");
+                    readFrames(video, fps);
+                    long difference = 0;
+                    int frame_index = 0;
+                    int max_process = videoFramePaths.size();
+                    for(String frame : videoFramePaths) {
+                        lrImg = BitmapFactory.decodeFile(framesDir + "/" + frame);
+                        TensorImage lrImage = prepareInput();
+                        TensorImage srImage = prepareOutput();
+                        long startTime = System.currentTimeMillis();
+                        srModel.run(lrImage.getBuffer(), srImage.getBuffer());
+                        difference += (System.currentTimeMillis() - startTime);
+                        Bitmap srImg = tensorToBitmap(srImage);
+                        String img_name = String.format("srframe_%04d.jpeg", frame_index);
+                        frame_index += 1;
+                        saveImage(srImg, img_name);
+                        srFramePaths.add(srFramesDir + "/" + img_name);
+
+                        // Progress bar
+                        int finalFrame_index = frame_index;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.e("Minh", "===> RUN THREAD progress = " + finalFrame_index + "/" + max_process);
+                                simpleProgressBar = findViewById(R.id.determinateBar);
+                                simpleProgressBar.setMax(max_process);
+                                simpleProgressBar.setProgress(finalFrame_index);
+                            }
+                        });
+                    }
+                    int numOfFrames = srFramePaths.size();
+                    difference /= numOfFrames;
+                    totalFramesView.setText(String.valueOf(numOfFrames));
+                    executionTimeView.setText(String.format("%d ms", difference));
+                    fpsView.setText(String.valueOf(Math.toIntExact(1000 / difference)));
+                    saveSrVideo(video, fps);
+
+//                    // Update Process bar
+//
+//                    int finalFrame_index = frame_index;
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Log.e("Minh", "===> RUN THREAD progress = " + finalFrame_index + "/" + max_process);
+//                            simpleProgressBar = findViewById(R.id.determinateBar);
+//                            simpleProgressBar.setMax(videoFramePaths.size());
+//                            simpleProgressBar.setProgress(finalFrame_index);
+//                        }
+//                    });
+                    // Delete the frames folder
+                    deleteRecursive(framesDir);
+                    deleteRecursive(srFramesDir);
+                    calculatePSNR(video);
+                    calculateSSIM(video);
+                    srFramePaths.clear();
+                    videoFramePaths.clear();
                 }
+
+
             }
-            // TODO ADD fps here, Fix Alertbox
-            String fps = "24";
-            // alertBox("Extracting Frames", "Please wait!");
-            readFrames(video, fps);
-            long difference = 0;
-            int frame_index = 0;
-            // alertBox("Running DNN", "This will take some time, please wait!");
-            for(String frame : videoFramePaths) {
-                lrImg = BitmapFactory.decodeFile(framesDir + "/" + frame);
-                TensorImage lrImage = prepareInput();
-                TensorImage srImage = prepareOutput();
-                long startTime = System.currentTimeMillis();
-                srModel.run(lrImage.getBuffer(), srImage.getBuffer());
-                difference += (System.currentTimeMillis() - startTime);
-                Bitmap srImg = tensorToBitmap(srImage);
-                String img_name = String.format("srframe_%04d.jpeg", frame_index);
-                frame_index += 1;
-                saveImage(srImg, img_name);
-                srFramePaths.add(srFramesDir + "/" + img_name);
-            }
-            int numOfFrames = srFramePaths.size();
-            difference /= numOfFrames;
-            totalFramesView.setText(String.valueOf(numOfFrames));
-            executionTimeView.setText(String.format("%d ms", difference));
-            fpsView.setText(String.valueOf(Math.toIntExact(1000 / difference)));
-            saveSrVideo(video, fps);
-            // Delete the frames folder
-            deleteRecursive(framesDir);
-            deleteRecursive(srFramesDir);
-            calculatePSNR(video);
-            calculateSSIM(video);
-            srFramePaths.clear();
-            videoFramePaths.clear();
-        }
+        }.start();
     }
 
 }
