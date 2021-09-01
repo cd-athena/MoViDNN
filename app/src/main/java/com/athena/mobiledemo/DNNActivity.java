@@ -431,14 +431,22 @@ public class DNNActivity extends AppCompatActivity {
                     totalFramesView.setText(String.valueOf(numOfFrames));
                     executionTimeView.setText(String.format("%d ms", difference));
                     fpsView.setText(String.valueOf(Math.toIntExact(1000 / difference)));
+                    // Progress bar update
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            resultsProgressBar = findViewById(R.id.resultsProgressBar);
+                            resultsProgressBar.setMax(10);
+                            resultsProgressBar.setProgress(1);
+                        }
+                    });
                     // Save SR Video
                     saveSrVideo(video, fps);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             resultsProgressBar = findViewById(R.id.resultsProgressBar);
-                            resultsProgressBar.setMax(3);
-                            resultsProgressBar.setProgress(1);
+                            resultsProgressBar.setProgress(4);
                         }
                     });
                     // Delete the frames folder
@@ -450,7 +458,7 @@ public class DNNActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             resultsProgressBar = findViewById(R.id.resultsProgressBar);
-                            resultsProgressBar.setProgress(2);
+                            resultsProgressBar.setProgress(7);
                         }
                     });
                     calculateSSIM(video);
@@ -458,7 +466,7 @@ public class DNNActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             resultsProgressBar = findViewById(R.id.resultsProgressBar);
-                            resultsProgressBar.setProgress(3);
+                            resultsProgressBar.setProgress(10);
                         }
                     });
                     srFramePaths.clear();
