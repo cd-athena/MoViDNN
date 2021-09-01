@@ -8,34 +8,35 @@
 
     <Button
         android:id="@+id/subjectiveButton"
-        android:layout_width="212dp"
-        android:layout_height="85dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="200dp"
+        android:layout_height="75dp"
+        android:layout_marginBottom="96dp"
         android:text="Subjective Test"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dnnButton" />
 
     <Button
         android:id="@+id/dnnButton"
-        android:layout_width="141dp"
-        android:layout_height="76dp"
+        android:layout_width="200dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="32dp"
         android:text="DNN Test"
-        app:layout_constraintTop_toBottomOf="@id/athenaLogo"
+        app:layout_constraintBottom_toTopOf="@id/subjectiveButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/subjectiveButton" />
+        app:layout_constraintTop_toBottomOf="@id/athenaLogo" />
 
     <ImageView
         android:id="@+id/athenaLogo"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
         app:layout_constraintBottom_toTopOf="@+id/dnnButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@mipmap/athena_logo" />
+        app:srcCompat="@drawable/athena_logo_text" />
 </androidx.constraintlayout.widget.ConstraintLayout>
