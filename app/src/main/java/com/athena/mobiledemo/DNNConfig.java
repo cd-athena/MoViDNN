@@ -52,7 +52,7 @@ public class DNNConfig extends AppCompatActivity {
                 availableModels[i] = availableModels[i].replace(".tflite", "");
             }
         } catch (IOException e) {
-            Log.e("EKREM:", "Error while reading list of models");
+            Log.e("Error:", "Error while reading list of models");
         }
     }
 

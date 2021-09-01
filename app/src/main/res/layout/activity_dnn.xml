@@ -6,31 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".DNNActivity">
 
-    <TextView
-        android:id="@+id/statTableTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        android:text="DNN Stats"
-        android:textColor="@color/athena_purple"
-        android:textSize="48dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <TableLayout
         android:id="@+id/statTable"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:stretchColumns="*"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/statTableTitle">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TableRow
             android:layout_width="0dp"
@@ -47,91 +33,98 @@
                 android:gravity="center_horizontal"
                 android:text="DNN Execution"
                 android:textColor="@color/athena_blue"
-                android:textSize="24dp"/>
+                android:textSize="24dp" />
         </TableRow>
 
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:gravity="center_horizontal">
+
             <TextView
                 android:id="@+id/executionTimeLabel"
-                android:layout_column="0"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_column="0"
                 android:layout_weight="1"
-                android:gravity="left"
                 android:fontFamily="sans-serif-black"
-                android:textColor="@color/athena_blue"
+                android:gravity="left"
                 android:text="Time per Frame"
-                android:textSize="20dp"/>
+                android:textColor="@color/athena_blue"
+                android:textSize="20dp" />
+
             <TextView
                 android:id="@+id/executionTime"
-                android:layout_column="0"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_column="0"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="0.0 ms"
-                android:textSize="20dp"/>
+                android:textSize="20dp" />
         </TableRow>
 
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:gravity="center_horizontal">
+
             <TextView
                 android:id="@+id/executionFPSLabel"
-                android:layout_column="0"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_column="0"
                 android:layout_weight="1"
-                android:gravity="left"
                 android:fontFamily="sans-serif-black"
-                android:textColor="@color/athena_blue"
+                android:gravity="left"
                 android:text="FPS"
-                android:textSize="20dp"/>
+                android:textColor="@color/athena_blue"
+                android:textSize="20dp" />
+
             <TextView
                 android:id="@+id/fps"
-                android:layout_column="0"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_column="0"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="0.0"
-                android:textSize="20dp"/>
+                android:textSize="20dp" />
         </TableRow>
 
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:gravity="center_horizontal">
+
             <TextView
                 android:id="@+id/totalFramesLabel"
-                android:layout_column="0"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_column="0"
                 android:layout_weight="1"
-                android:gravity="left"
                 android:fontFamily="sans-serif-black"
-                android:textColor="@color/athena_blue"
+                android:gravity="left"
                 android:text="Total Frames"
-                android:textSize="20dp"/>
+                android:textColor="@color/athena_blue"
+                android:textSize="20dp" />
+
             <TextView
                 android:id="@+id/totalFrames"
-                android:layout_column="0"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_column="0"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="0.0"
-                android:textSize="20dp"/>
+                android:textSize="20dp" />
         </TableRow>
 
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:gravity="center_horizontal">
+
             <TextView
                 android:id="@+id/psnrLabel"
                 android:layout_width="wrap_content"
@@ -152,11 +145,11 @@
                 android:id="@+id/minPSNRLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="0"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-black"
                 android:gravity="left"
                 android:text="Min"
-                android:fontFamily="sans-serif-black"
                 android:textColor="@color/athena_blue"
                 android:textSize="20dp" />
 
@@ -164,8 +157,8 @@
                 android:id="@+id/minPSNR"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="1"
+                android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="0.0"
                 android:textSize="20dp" />
@@ -180,11 +173,11 @@
                 android:id="@+id/maxPSNRLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="0"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-black"
                 android:gravity="left"
                 android:text="Max"
-                android:fontFamily="sans-serif-black"
                 android:textColor="@color/athena_blue"
                 android:textSize="20dp" />
 
@@ -192,8 +185,8 @@
                 android:id="@+id/maxPSNR"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="1"
+                android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="0.0"
                 android:textSize="20dp" />
@@ -208,11 +201,11 @@
                 android:id="@+id/avgPSNRLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="0"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-black"
                 android:gravity="left"
                 android:text="Average"
-                android:fontFamily="sans-serif-black"
                 android:textColor="@color/athena_blue"
                 android:textSize="20dp" />
 
@@ -220,8 +213,8 @@
                 android:id="@+id/avgPSNR"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="1"
+                android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="0.0"
                 android:textSize="20dp" />
@@ -236,11 +229,11 @@
                 android:id="@+id/yPSNRLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="0"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-black"
                 android:gravity="left"
                 android:text="Y-PSNR"
-                android:fontFamily="sans-serif-black"
                 android:textColor="@color/athena_blue"
                 android:textSize="20dp" />
 
@@ -248,8 +241,8 @@
                 android:id="@+id/yPSNR"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="1"
+                android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="0.0"
                 android:textSize="20dp" />
@@ -280,11 +273,11 @@
                 android:id="@+id/allSSIMLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="0"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-black"
                 android:gravity="left"
                 android:text="All"
-                android:fontFamily="sans-serif-black"
                 android:textColor="@color/athena_blue"
                 android:textSize="20dp" />
 
@@ -292,12 +285,13 @@
                 android:id="@+id/allSSIM"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="1"
+                android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="0.0"
                 android:textSize="20dp" />
         </TableRow>
+
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
@@ -307,11 +301,11 @@
                 android:id="@+id/ySSIMLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="0"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-black"
                 android:gravity="left"
                 android:text="Y-PSNR"
-                android:fontFamily="sans-serif-black"
                 android:textColor="@color/athena_blue"
                 android:textSize="20dp" />
 
@@ -319,33 +313,77 @@
                 android:id="@+id/ySSIM"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_column="1"
+                android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="0.0"
                 android:textSize="20dp" />
         </TableRow>
     </TableLayout>
 
-    <Button
-        android:id="@+id/doneButton"
+    <TextView
+        android:id="@+id/srProgressLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Done"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:fontFamily="sans-serif-black"
+        android:text="DNN Execution Progress"
+        android:textColor="@color/athena_blue"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@id/srProgressBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/statTable" />
 
     <ProgressBar
-        android:id="@+id/determinateBar"
+        android:id="@+id/srProgressBar"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:progress="0"
+        android:progressBackgroundTint="@color/athena_purple"
+        android:progressTint="@color/athena_blue"
+        app:layout_constraintBottom_toBottomOf="@+id/videoProgressLabel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/srProgressLabel" />
+
+    <TextView
+        android:id="@+id/videoProgressLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Results Preparation Progress"
+        android:fontFamily="sans-serif-black"
+        android:textColor="@color/athena_blue"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/resultsProgressBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/srProgressBar" />
+
+    <ProgressBar
+        android:id="@+id/resultsProgressBar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:progress="0"
+        android:progressBackgroundTint="@color/athena_purple"
+        android:progressTint="@color/athena_blue"
+        app:layout_constraintBottom_toTopOf="@id/doneButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/videoProgressLabel" />
+
+    <Button
+        android:id="@+id/doneButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Done"
+        android:backgroundTint="#555454"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/doneButton"
-        android:progress="0"/>
+        app:layout_constraintTop_toBottomOf="@id/resultsProgressBar" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

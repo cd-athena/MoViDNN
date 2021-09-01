@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -76,8 +75,9 @@ public class DNNActivity extends AppCompatActivity {
     // Video processing variables
     ArrayList<String> videoFramePaths = new ArrayList<>();
     ArrayList<String> srFramePaths = new ArrayList<>();
-
-    ProgressBar simpleProgressBar;
+    // Progress Bars
+    ProgressBar srProgressBar;
+    ProgressBar resultsProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,17 +101,22 @@ public class DNNActivity extends AppCompatActivity {
         allSSIMView = findViewById(R.id.allSSIM);
         ySSIMView = findViewById(R.id.ySSIM);
 
-        simpleProgressBar = findViewById(R.id.determinateBar);
-        simpleProgressBar.setScaleX(6f);
-        simpleProgressBar.setScaleY(2f);
+        srProgressBar = findViewById(R.id.srProgressBar);
+        srProgressBar.setScaleX(6f);
+        srProgressBar.setScaleY(2f);
+
+        resultsProgressBar = findViewById(R.id.resultsProgressBar);
+        resultsProgressBar.setScaleX(6f);
+        resultsProgressBar.setScaleY(2f);
 
         compatList = new CompatibilityList();
         if (!resultsDir.exists()) {
             if (!resultsDir.mkdir()) {
-                Log.e ("ALERT", "Could not create the directories");
+                Log.e ("Error:", "Could not create the directories");
             }
         }
         setOnClicks();
+        runSR();
     }
 
 
@@ -120,7 +125,7 @@ public class DNNActivity extends AppCompatActivity {
     }
 
     private void completeTest(View view) {
-        runSR();
+        // TODO Fill this function
     }
 
     private MappedByteBuffer loadModelFile(String modelName) throws IOException {
@@ -152,7 +157,7 @@ public class DNNActivity extends AppCompatActivity {
             options.addDelegate(gpuDelegate);
             srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"), options);
         } catch (IOException e) {
-            Log.e("EKREM:" ,"Error while initializing model with GPU: " + e);
+            Log.e("Error:" ,"Error while initializing model with GPU: " + e);
         }
     }
 
@@ -165,7 +170,7 @@ public class DNNActivity extends AppCompatActivity {
             options.addDelegate(nnApiDelegate);
             srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"), options);
         } catch (IOException e) {
-            Log.e("EKREM:" ,"Error while initializing model with NNAPI: " + e);
+            Log.e("Error:" ,"Error while initializing model with NNAPI: " + e);
         }
     }
 
@@ -174,7 +179,7 @@ public class DNNActivity extends AppCompatActivity {
         try {
             srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"));
         } catch (IOException e) {
-            Log.e("EKREM:" ,"Error while initializing model: " + e);
+            Log.e("Error:" ,"Error while initializing model: " + e);
         }
     }
 
@@ -247,10 +252,10 @@ public class DNNActivity extends AppCompatActivity {
         FFmpegSession ffmpegSession = FFmpegKit.execute("-y -i " + inputPath + " -s 1920x1080 -vf format=yuv420p,fps=" + fps + " -preset ultrafast " + outputPath);
 
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
-            Log.e("EKREM", "Saved SR video successfully");
+            Log.e("Log:", "Saved SR video successfully");
         } else {
             // Failure
-            Log.d("EKREM:", String.format("Saving SR video failed with state %s and rc %s.%s", ffmpegSession.getState(),
+            Log.d("Error:", String.format("Saving SR video failed with state %s and rc %s.%s", ffmpegSession.getState(),
                     ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
         }
     }
@@ -269,7 +274,7 @@ public class DNNActivity extends AppCompatActivity {
     private void readFrames(String videoName, String fps) {
         if (!framesDir.exists()) {
             if (!framesDir.mkdir()) {
-                Log.e ("ALERT", "Could not create the directories");
+                Log.e ("Error:", "Could not create the directories");
             }
         }
         String inpuPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + videoName + ".mp4";
@@ -277,10 +282,10 @@ public class DNNActivity extends AppCompatActivity {
         // Execute the ffmpeg command
         FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inpuPath + " -vf fps=" + fps + " -preset ultrafast " + outputPath);
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
-            Log.e("EKREM", "Extracted frames successfully");
+            Log.e("Log:", "Extracted frames successfully");
         } else {
             // Failure
-            Log.d("EKREM:", String.format("Extracting frames failed with state %s and rc %s.%s", ffmpegSession.getState(),
+            Log.d("Error:", String.format("Extracting frames failed with state %s and rc %s.%s", ffmpegSession.getState(),
                     ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
         }
         fillFrames();
@@ -329,7 +334,6 @@ public class DNNActivity extends AppCompatActivity {
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
             // Extract PSNRs
             String out = ffmpegSession.getOutput();
-            Log.e("EKREM", "Output: " + out);
             String psnrLine = out.substring(out.lastIndexOf("PSNR"));
             String avgPSNRLine = psnrLine.substring(psnrLine.lastIndexOf("average"), psnrLine.indexOf("min"));
             String yPSNRLine = psnrLine.substring(psnrLine.lastIndexOf("y:"), psnrLine.indexOf("u:"));
@@ -358,7 +362,6 @@ public class DNNActivity extends AppCompatActivity {
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
             // Extract SSIMs
             String out = ffmpegSession.getOutput();
-            Log.e("EKREM", "Output: " + out);
             String SSIMLine = out.substring(out.lastIndexOf("SSIM"));
             String allSSIMLine = SSIMLine.substring(SSIMLine.lastIndexOf("All:"));
             String ySSIMLine = SSIMLine.substring(SSIMLine.lastIndexOf("Y:"), SSIMLine.indexOf("U:"));
@@ -372,13 +375,6 @@ public class DNNActivity extends AppCompatActivity {
         }
     }
 
-    private void alertBox(String title, String message) {
-        final androidx.appcompat.app.AlertDialog alertDialog = new androidx.appcompat.app.AlertDialog.Builder(this).create();
-        alertDialog.setTitle(title);
-        alertDialog.setMessage(message);
-        alertDialog.show();
-    }
-
     public void deleteRecursive(File path) {
         if (path.isDirectory()) {
             for (File child : path.listFiles()) {
@@ -388,43 +384,20 @@ public class DNNActivity extends AppCompatActivity {
         path.delete();
     }
 
-//    private void runThread(int progress, int max_progress) {
-//        new Thread() {
-//            public void run() {
-//                    try {
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                Log.e("Minh", "===> i = " + progress);
-//                                simpleProgressBar = findViewById(R.id.determinateBar);
-//                                simpleProgressBar.setMax(max_progress);
-//                                simpleProgressBar.setProgress(progress);
-//                            }
-//                        });
-//                        Thread.sleep(100);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//            }
-//        }.start();
-//    }
-
     private void runSR() {
 
         new Thread() {
             public void run() {
 
                 initializeDNN();
-//                int max_process = videoFramePaths.size()*selectedVideos.length;
                 for(String video: selectedVideos){
                     if (!srFramesDir.exists()) {
                         if (!srFramesDir.mkdir()) {
-                            Log.e ("ALERT", "Could not create the SR frame directories");
+                            Log.e ("Error:", "Could not create the SR frame directories");
                         }
                     }
-                    // TODO ADD fps here, Fix Alertbox
+                    // TODO ADD fps here
                     String fps = "24";
-                    // alertBox("Extracting Frames", "Please wait!");
                     readFrames(video, fps);
                     long difference = 0;
                     int frame_index = 0;
@@ -447,10 +420,9 @@ public class DNNActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Log.e("Minh", "===> RUN THREAD progress = " + finalFrame_index + "/" + max_process);
-                                simpleProgressBar = findViewById(R.id.determinateBar);
-                                simpleProgressBar.setMax(max_process);
-                                simpleProgressBar.setProgress(finalFrame_index);
+                                srProgressBar = findViewById(R.id.srProgressBar);
+                                srProgressBar.setMax(max_process);
+                                srProgressBar.setProgress(finalFrame_index);
                             }
                         });
                     }
@@ -459,30 +431,47 @@ public class DNNActivity extends AppCompatActivity {
                     totalFramesView.setText(String.valueOf(numOfFrames));
                     executionTimeView.setText(String.format("%d ms", difference));
                     fpsView.setText(String.valueOf(Math.toIntExact(1000 / difference)));
+                    // Save SR Video
                     saveSrVideo(video, fps);
-
-//                    // Update Process bar
-//
-//                    int finalFrame_index = frame_index;
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Log.e("Minh", "===> RUN THREAD progress = " + finalFrame_index + "/" + max_process);
-//                            simpleProgressBar = findViewById(R.id.determinateBar);
-//                            simpleProgressBar.setMax(videoFramePaths.size());
-//                            simpleProgressBar.setProgress(finalFrame_index);
-//                        }
-//                    });
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            resultsProgressBar = findViewById(R.id.resultsProgressBar);
+                            resultsProgressBar.setMax(3);
+                            resultsProgressBar.setProgress(1);
+                        }
+                    });
                     // Delete the frames folder
                     deleteRecursive(framesDir);
                     deleteRecursive(srFramesDir);
+                    // Calculate Metrics
                     calculatePSNR(video);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            resultsProgressBar = findViewById(R.id.resultsProgressBar);
+                            resultsProgressBar.setProgress(2);
+                        }
+                    });
                     calculateSSIM(video);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            resultsProgressBar = findViewById(R.id.resultsProgressBar);
+                            resultsProgressBar.setProgress(3);
+                        }
+                    });
                     srFramePaths.clear();
                     videoFramePaths.clear();
+                    // Indicate its completed
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            doneButton = findViewById(R.id.doneButton);
+                            doneButton.setBackgroundColor(getColor(R.color.athena_blue));
+                        }
+                    });
                 }
-
-
             }
         }.start();
     }

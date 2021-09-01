@@ -59,14 +59,6 @@ public class SubjectiveActivity extends AppCompatActivity {
         checkedScales   = getCheckedItem(SubjectiveConfig.getCheckedScales(), SubjectiveConfig.scales);
         checkedVideos   = getCheckedItem(SubjectiveConfig.getCheckedVideos(), SubjectiveConfig.videos);
 
-//        File[] files = directory.listFiles();
-//
-//        for (int i = 0; i < files.length; i++) {
-//            video_paths.add(files[i].getAbsolutePath());
-//            Log.i("Minh", "video_path " + i + ": " + video_paths.get(video_paths.size()-1));
-//        }
-
-//        Log.e("Minh", "Video_filder_String: " + video_folder_string);
         for (int i = 0; i < checkedVideos.size(); i ++) {
             for (int j = 0; j < checkedNetworks.size(); j ++) {
                 for (int k = 0; k < checkedScales.size(); k ++) {
@@ -75,7 +67,7 @@ public class SubjectiveActivity extends AppCompatActivity {
                                                 checkedNetworks.get(j) + '_' +
                                                 checkedScales.get(k) + ".mp4";
 
-                    Log.e("Video", "===> Video: " + current_file_path);
+                    Log.e("Log:", "Video: " + current_file_path);
 
                     videoPaths.add(current_file_path);
                 }
@@ -124,7 +116,7 @@ public class SubjectiveActivity extends AppCompatActivity {
             public void onCompletion(MediaPlayer mp) {
                 String[] pathElements = uri.getPath().split("/");
                 String videoName = pathElements[pathElements.length-1];
-                Log.e("Minh", "==> Video name: " + videoName);
+                Log.e("Log:", "Video name: " + videoName);
                 onTestVideoEnd(videoName);
             }
         });
@@ -143,7 +135,7 @@ public class SubjectiveActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 rate.add(rates_int[which]);
                 videoNames.add(videoName);
-                Log.e("Minh", "===> Video # " + rate.size() + ". Rate: "
+                Log.e("Log:", "Video # " + rate.size() + ". Rate: "
                         + rate.get(rate.size()-1) + " for video "
                         + videoNames.get(videoNames.size()-1));
 
@@ -181,7 +173,7 @@ public class SubjectiveActivity extends AppCompatActivity {
 
         if (!dir.exists()) {
             if (!dir.mkdir()) {
-                Log.e ("ALERT", "Could not create the directories");
+                Log.e ("Error:", "Could not create the directories");
             }
         }
 

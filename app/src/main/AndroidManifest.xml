@@ -40,10 +40,6 @@
             android:name=".SubjectiveActivity"
             android:parentActivityName=".SubjectiveInstruction"
             android:screenOrientation="landscape" />
-        <activity
-            android:name=".ABRActivity"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
