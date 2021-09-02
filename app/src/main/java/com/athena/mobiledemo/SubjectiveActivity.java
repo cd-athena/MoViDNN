@@ -40,7 +40,7 @@ public class SubjectiveActivity extends AppCompatActivity {
 
     public List<Integer>    rate = new ArrayList<>();
     public List<String>     videoNames = new ArrayList<>();
-    public List<String>     videoPaths = new ArrayList<>();
+    public List<String>     videoPaths = SubjectiveConfig.testedVideosPaths;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,28 +50,14 @@ public class SubjectiveActivity extends AppCompatActivity {
         rate.clear();
         videoNames.clear();
         // Get all test videos
-        String video_folder_string = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults";
-//        File directory = new File(video_folder_string);
 
 
         // get subjective configuration
-        checkedNetworks = getCheckedItem(SubjectiveConfig.getCheckedNetworks(), SubjectiveConfig.networks);
-        checkedScales   = getCheckedItem(SubjectiveConfig.getCheckedScales(), SubjectiveConfig.scales);
-        checkedVideos   = getCheckedItem(SubjectiveConfig.getCheckedVideos(), SubjectiveConfig.videos);
+        checkedNetworks = getCheckedItem(SubjectiveConfig.getCheckedModels(), SubjectiveConfig.availableModels);
+        checkedVideos   = getCheckedItem(SubjectiveConfig.getCheckedVideos(), SubjectiveConfig.availableVideos);
 
-        for (int i = 0; i < checkedVideos.size(); i ++) {
-            for (int j = 0; j < checkedNetworks.size(); j ++) {
-                for (int k = 0; k < checkedScales.size(); k ++) {
-                    String current_file_path =  video_folder_string + '/' +
-                                                checkedVideos.get(i) + '_' +
-                                                checkedNetworks.get(j) + '_' +
-                                                checkedScales.get(k) + ".mp4";
-
-                    Log.e("Log:", "Video: " + current_file_path);
-
-                    videoPaths.add(current_file_path);
-                }
-            }
+        for (String videoPath : videoPaths) {
+            Log.e("Minh", "This video will be tested: " + videoPath);
         }
 
         NUM_OF_TEST_VIDEO = videoPaths.size();

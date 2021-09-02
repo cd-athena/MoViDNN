@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="athena_purple">#3D3466</color>
     <color name="athena_blue">#5AAEED</color>
+    <color name="NotDoneButton">#555454</color>
 </resources>

@@ -40,16 +40,6 @@
             android:text="Select DNN Networks" />
 
         <Button
-            android:id="@+id/scaleSelectionButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
-            android:backgroundTint="#555454"
-            android:text="Select Scales"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
             android:id="@+id/videoSelectionButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

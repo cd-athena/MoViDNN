@@ -26,9 +26,9 @@ public class DNNConfig extends AppCompatActivity {
     Button acceleratorSelector;
     Button videoSelector;
     Button startButton;
-    String[] availableModels;
+    private static String[] availableModels;
     String[] accelerators;
-    String[] availableVideos;
+    private static String[] availableVideos;
     boolean[] checkedVideos;
     String[] selectedVideos;
 
@@ -230,4 +230,7 @@ public class DNNConfig extends AppCompatActivity {
             alertBox("Please make sure you have completed the setup!");
         }
     }
+
+    public static String[] getAvailableModels() { return availableModels;}
+    public static String[] getAvailableVideos() { return availableVideos;}
 }
