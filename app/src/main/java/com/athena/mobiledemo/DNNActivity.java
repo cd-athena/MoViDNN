@@ -1,8 +1,11 @@
 package com.athena.mobiledemo;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -36,10 +39,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class DNNActivity extends AppCompatActivity {
@@ -482,6 +488,54 @@ public class DNNActivity extends AppCompatActivity {
                 }
             }
         }.start();
+    }
+
+    private void saveObjectiveResults() {
+        Calendar calendar = Calendar.getInstance();
+        String day = String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH));
+        String month = String.format("%02d", calendar.get(Calendar.MONTH) + 1);
+        String year = String.format("%04d", calendar.get(Calendar.YEAR));
+        String hour = String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY));
+        String minute = String.format("%02d", calendar.get(Calendar.MINUTE));
+
+        String fileNameString = year + '_' + month + '_' + day + "__" +
+                hour + '_' + minute;
+        final File dir = new File(String.valueOf(resultsDir));
+
+        if (!dir.exists()) {
+            if (!dir.mkdir()) {
+                Log.e ("Error:", "Could not create the directories");
+            }
+        }
+
+        final File log = new File (dir, fileNameString + ".csv");
+        if (!log.exists()) {
+            try {
+                log.createNewFile();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            Writer log_writer = new OutputStreamWriter(new FileOutputStream(log));
+            log_writer.write("VideoName,minPSNR,maxPSNR,avgPSNR,yPSNR,allSSIM,ySSIM \n"); // TODO: add PSNR, SSIM
+
+            /**
+            for (int i = 0; i < selectedVideos.length; i ++) {
+                String string = selectedVideos[i] + ',' +
+                        minPSNR.get(i) + '\n';
+                log_writer.write(string);
+            }
+            **/
+
+            log_writer.flush();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

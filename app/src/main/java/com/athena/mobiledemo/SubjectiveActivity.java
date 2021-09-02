@@ -175,7 +175,7 @@ public class SubjectiveActivity extends AppCompatActivity {
 
         try {
             Writer log_writer = new OutputStreamWriter(new FileOutputStream(log));
-            log_writer.write("VideoIdx,Rate\n"); // TODO: add PSNR, SSIM
+            log_writer.write("VideoName,Rate\n"); // TODO: add PSNR, SSIM
 
             for (int i = 0; i < rate.size(); i ++) {
                 String string = videoNames.get(i) + ',' +
