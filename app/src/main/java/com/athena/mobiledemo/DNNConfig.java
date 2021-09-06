@@ -57,7 +57,7 @@ public class DNNConfig extends AppCompatActivity {
     }
 
     private void fillVideos() {
-        String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults";
+        String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/Input";
         File inputDirectory = new File(directoryPath);
         File[] videos = inputDirectory.listFiles();
         availableVideos = new String[videos.length];

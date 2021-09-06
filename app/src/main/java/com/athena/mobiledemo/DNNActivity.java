@@ -72,6 +72,7 @@ public class DNNActivity extends AppCompatActivity {
     NnApiDelegate nnApiDelegate;
     CompatibilityList compatList;
     Bitmap lrImg;
+    final File inputDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/Input");
     final File resultsDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults");
     final File framesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/Frames");
     final File srFramesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/SRFrames");
@@ -254,7 +255,7 @@ public class DNNActivity extends AppCompatActivity {
 
     private void saveSrVideo(String videoName, String fps) {
         String inputPath = srFramesDir + "/srframe_%04d.jpeg";
-        String outputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + videoName + "_SR.mp4";
+        String outputPath = resultsDir + "/" + videoName + "_" + selectedModel + ".mp4";
         FFmpegSession ffmpegSession = FFmpegKit.execute("-y -i " + inputPath + " -s 1920x1080 -vf format=yuv420p,fps=" + fps + " -preset ultrafast " + outputPath);
 
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
@@ -283,7 +284,7 @@ public class DNNActivity extends AppCompatActivity {
                 Log.e ("Error:", "Could not create the directories");
             }
         }
-        String inpuPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + videoName + ".mp4";
+        String inpuPath = inputDir + "/" + videoName + ".mp4";
         String outputPath = framesDir + "/frame_%04d.png";
         // Execute the ffmpeg command
         FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inpuPath + " -vf fps=" + fps + " -preset ultrafast " + outputPath);
@@ -334,8 +335,8 @@ public class DNNActivity extends AppCompatActivity {
 
     @SuppressLint("DefaultLocale")
     private void calculatePSNR(String video) {
-        String inputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + video + "_SR.mp4";
-        String referencePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + video + "_Ref.mp4";
+        String inputPath = inputDir + "/" + video + ".mp4";
+        String referencePath = inputDir + "/" + video + ".mp4";
         FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inputPath + " -i " + referencePath + " -filter_complex psnr -f null -");
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
             // Extract PSNRs

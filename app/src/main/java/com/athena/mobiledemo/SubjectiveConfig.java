@@ -229,7 +229,6 @@ public class SubjectiveConfig extends AppCompatActivity {
             File inputDirectory = new File(DnnAppliedDatabaseDirectoryPath);
             File[] videos = inputDirectory.listFiles();
             ArrayList<String> suitableVideos = new ArrayList<>();
-//            ArrayList<String> referenceVideos = new ArrayList<>();
 
             for (int i = 0; i < videos.length; i++) {
                 for (int j = 0; j < availableModels.length; j++){
@@ -239,42 +238,23 @@ public class SubjectiveConfig extends AppCompatActivity {
                         if (p.matcher(videos[i].getName()).matches()) {
                             suitableVideos.add(videos[i].getName().replace(".mp4", ""));
                             Log.e("Minh", "********** Found Available Video for selection: " + videos[i].getName());
-
-//                            if (referenceVideos.size() == 0) {
-//                                referenceVideos.add(videos[i].getName().split("_")[0]);
-//                            }
-//                            else {
-//                                for (String refVideo : referenceVideos) {
-//                                    if (!refVideo.equals(videos[i].getName().split("_")[0])) {
-//                                        referenceVideos.add(videos[i].getName().split("_")[0]);
-//                                        Log.e("Minh", "********** Found Video: " + videos[i].getName() + " from Ref Video: " + referenceVideos.get(referenceVideos.size() - 1));
-//                                    }
-//                                    else {
-//                                        Log.e("Minh", "********** Found Video: " + videos[i].getName() + " from OLD Ref Video: " + referenceVideos.get(referenceVideos.size() - 1));
-//                                    }
-//                                }
-//                            }
                         }
                     }
                 }
             }
 
             if (suitableVideos.size() == 0) {
-                Log.e("Minh", "No Available Videos");
+                availableVideos = new String[0];
+                AlertDialog.Builder alertNoVideo = new AlertDialog.Builder(this);
+                alertNoVideo.setTitle("Warning");
+                alertNoVideo.setMessage("There is no video for selected DNN network(s)!");
+                alertNoVideo.show();
             }
             else {
                 availableVideos = new String[suitableVideos.size()];
-//                availableVideosPaths = new String[suitableVideos.size() + referenceVideos.size()];
                 for (int i = 0; i < suitableVideos.size(); i++) {
                     availableVideos[i] = suitableVideos.get(i);
-//                    availableVideosPaths[i] = DnnAppliedDatabaseDirectoryPath + '/' + availableVideos[i] + ".mp4";
-//                    Log.e("Minh", "===> video path # " + i + ": " + availableVideosPaths[i]);
                 }
-
-//                for (int i = 0; i < referenceVideos.size(); i++) {
-//                    availableVideosPaths[i + availableVideos.length] = inputDatabaseDirectoryPath + '/' + referenceVideos.get(i);
-//                    Log.e("Minh", "===> Ref video path # " + i + ": " + availableVideosPaths[i]);
-//                }
             }
         }
 
