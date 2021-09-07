@@ -1,6 +1,7 @@
 package com.athena.mobiledemo;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +28,8 @@ public class DNNConfig extends AppCompatActivity {
     Button acceleratorSelector;
     Button videoSelector;
     Button startButton;
+    SwitchCompat defaultVideoSwitch;
+    SwitchCompat defaultNetworkSwitch;
     private static String[] availableModels;
     String[] accelerators;
     private static String[] availableVideos;
@@ -36,35 +40,68 @@ public class DNNConfig extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dnnconfig);
+        defaultVideoSwitch = findViewById(R.id.defaultVideosSwitch);
+        defaultNetworkSwitch = findViewById(R.id.defaultNetworksSwitch);
         dnnSelector = findViewById(R.id.network_select_button);
         acceleratorSelector = findViewById(R.id.accelerator_picker);
         videoSelector = findViewById(R.id.video_picker);
         startButton = findViewById(R.id.start_button);
-        fillNetworks();
-        fillVideos();
         setOnClicks();
     }
 
     public void fillNetworks() {
         try {
-            availableModels = getAssets().list("models/");
-            for (int i =0; i < availableModels.length; i++) {
-                availableModels[i] = availableModels[i].replace(".tflite", "");
+            ArrayList<String> networkList = new ArrayList<>();
+            if(defaultNetworkSwitch.isChecked()) {
+                Log.e("Ekrem", "Swith is checked!");
+                String[] defaultNetworks = getAssets().list("models/");
+                for (String defaultNetwork : defaultNetworks) {
+                    networkList.add(defaultNetwork.replace(".tflite", ""));
+                }
             }
+            try {
+                String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/Networks";
+                File inputDirectory = new File(directoryPath);
+                File[] additionalNetworks = inputDirectory.listFiles();
+                for (File additionalNetwork : additionalNetworks) {
+                    networkList.add(additionalNetwork.getName().replace(".tflite", ""));
+                }
+            } catch (NullPointerException e) {
+                Log.e("Log:", "No additional networks found!");
+            }
+            availableModels = (String[]) networkList.toArray(new String[0]);
+
         } catch (IOException e) {
             Log.e("Error:", "Error while reading list of models");
         }
     }
 
     private void fillVideos() {
-        String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/Input";
-        File inputDirectory = new File(directoryPath);
-        File[] videos = inputDirectory.listFiles();
-        availableVideos = new String[videos.length];
-        for (int i =0; i < videos.length; i++) {
-            availableVideos[i] = videos[i].getName().replace(".mp4", "");
+        try {
+            ArrayList<String> videoList = new ArrayList<>();
+            if(defaultVideoSwitch.isChecked()) {
+                String[] defaultVideos = getAssets().list("videos/");
+                for (String defaultVideo : defaultVideos) {
+                    videoList.add(defaultVideo.replace(".mp4", ""));
+                }
+            }
+
+            try {
+                String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/InputVideos";
+                File inputDirectory = new File(directoryPath);
+                File[] additionalVideos = inputDirectory.listFiles();
+                for (File additionalVideo : additionalVideos) {
+                    videoList.add(additionalVideo.getName().replace(".mp4", ""));
+                }
+            } catch (NullPointerException e) {
+                Log.e("Log:", "No additional videos found!");
+            }
+
+            availableVideos = (String[]) videoList.toArray(new String[0]);
+            checkedVideos = new boolean[availableVideos.length];
+        } catch (IOException e) {
+            Log.e("Error:", "Error while reading list of videos");
         }
-        checkedVideos = new boolean[availableVideos.length];
     }
 
 
@@ -100,6 +137,7 @@ public class DNNConfig extends AppCompatActivity {
     }
 
     private void pickDNN(View view) {
+        fillNetworks();
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Pick the DNN");
         alertDialog.setSingleChoiceItems(availableModels, checkedNetwork, new DialogInterface.OnClickListener() {
@@ -172,6 +210,7 @@ public class DNNConfig extends AppCompatActivity {
     }
 
     private void pickVideo(View view) {
+        fillVideos();
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Pick the Videos");
         final List<String> videoList = Arrays.asList(availableVideos);

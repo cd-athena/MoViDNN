@@ -31,11 +31,47 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/athenaLogoSubjectiveConfig">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/defaultNetworksSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:minHeight="48dp"
+                android:text="Default DNNs"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="20dp"
+                app:thumbTint="@color/switch_thumb_selector"
+                app:trackTint="@color/switch_track_selector"
+                app:switchMinWidth="60dp"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/defaultVideosSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:minHeight="48dp"
+                android:text="Default Videos"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="20dp"
+                app:thumbTint="@color/switch_thumb_selector"
+                app:trackTint="@color/switch_track_selector"
+                app:switchMinWidth="60dp"/>
+        </LinearLayout>
+
         <Button
             android:id="@+id/network_select_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#555454"
             android:text="Select DNN Model" />
 
@@ -43,7 +79,7 @@
             android:id="@+id/accelerator_picker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#555454"
             android:text="Select Accelerator"
             app:layout_constraintEnd_toEndOf="parent"
@@ -53,7 +89,7 @@
             android:id="@+id/video_picker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#555454"
             android:text="Select Video"
             app:layout_constraintEnd_toEndOf="parent"
