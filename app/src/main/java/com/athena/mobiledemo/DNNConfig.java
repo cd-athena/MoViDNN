@@ -18,7 +18,10 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public class DNNConfig extends AppCompatActivity {
     int checkedNetwork = -1;
@@ -60,7 +63,7 @@ public class DNNConfig extends AppCompatActivity {
                 }
             }
             try {
-                String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/Networks";
+                String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/Networks";
                 File inputDirectory = new File(directoryPath);
                 File[] additionalNetworks = inputDirectory.listFiles();
                 for (File additionalNetwork : additionalNetworks) {
@@ -76,34 +79,31 @@ public class DNNConfig extends AppCompatActivity {
         }
     }
 
-    private void fillVideos() {
-        try {
-            ArrayList<String> videoList = new ArrayList<>();
-            if(defaultVideoSwitch.isChecked()) {
-                String[] defaultVideos = getAssets().list("videos/");
-                for (String defaultVideo : defaultVideos) {
-                    videoList.add(defaultVideo.replace(".mp4", ""));
-                }
-            }
-
-            try {
-                String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/InputVideos";
-                File inputDirectory = new File(directoryPath);
-                File[] additionalVideos = inputDirectory.listFiles();
-                for (File additionalVideo : additionalVideos) {
-                    videoList.add(additionalVideo.getName().replace(".mp4", ""));
-                }
-            } catch (NullPointerException e) {
-                Log.e("Log:", "No additional videos found!");
-            }
-
-            availableVideos = (String[]) videoList.toArray(new String[0]);
-            checkedVideos = new boolean[availableVideos.length];
-        } catch (IOException e) {
-            Log.e("Error:", "Error while reading list of videos");
+    private void filterDefaultVideos() {
+        ArrayList<String> filteredVideos = new ArrayList<>();
+        Set<String> defaultVideos = new HashSet<>(Arrays.asList("BotanicalGarden", "ScreenRecording",
+                "SoccerGame", "TearsOfSteel", "Traffic"));
+        for(String video: availableVideos) {
+            if(!defaultVideos.contains(video))
+                filteredVideos.add(video);
         }
+        availableVideos = (String[]) filteredVideos.toArray(new String[0]);
     }
 
+    private void fillVideos() {
+        ArrayList<String> videoList = new ArrayList<>();
+        String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/InputVideos";
+        File inputDirectory = new File(directoryPath);
+        File[] additionalVideos = inputDirectory.listFiles();
+        for (File additionalVideo : additionalVideos) {
+            videoList.add(additionalVideo.getName().replace(".mp4", ""));
+        }
+        availableVideos = (String[]) videoList.toArray(new String[0]);
+        if (!defaultVideoSwitch.isChecked()) {
+            filterDefaultVideos();
+        }
+        checkedVideos = new boolean[availableVideos.length];
+    }
 
     private void setOnClicks() {
         dnnSelector.setOnClickListener(this::pickDNN);

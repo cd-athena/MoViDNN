@@ -1,11 +1,6 @@
 package com.athena.mobiledemo;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -17,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.arthenica.ffmpegkit.FFmpegKit;
 import com.arthenica.ffmpegkit.FFmpegSession;
@@ -72,10 +69,10 @@ public class DNNActivity extends AppCompatActivity {
     NnApiDelegate nnApiDelegate;
     CompatibilityList compatList;
     Bitmap lrImg;
-    final File inputDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/Input");
-    final File resultsDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults");
-    final File framesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/Frames");
-    final File srFramesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/SRFrames");
+    final File inputDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/InputVideos");
+    final File resultsDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults");
+    final File framesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/Frames");
+    final File srFramesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/SRFrames");
     // Input variables
     int width = 480;
     int height = 270;
@@ -284,10 +281,10 @@ public class DNNActivity extends AppCompatActivity {
                 Log.e ("Error:", "Could not create the directories");
             }
         }
-        String inpuPath = inputDir + "/" + videoName + ".mp4";
+        String inputPath = inputDir + "/" + videoName + ".mp4";
         String outputPath = framesDir + "/frame_%04d.png";
         // Execute the ffmpeg command
-        FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inpuPath + " -vf fps=" + fps + " -preset ultrafast " + outputPath);
+        FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inputPath + " -vf fps=" + fps + " -preset ultrafast " + outputPath);
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
             Log.e("Log:", "Extracted frames successfully");
         } else {
@@ -363,8 +360,8 @@ public class DNNActivity extends AppCompatActivity {
 
     @SuppressLint("DefaultLocale")
     private void calculateSSIM(String video) {
-        String inputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + video + "_SR.mp4";
-        String referencePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults/" + video + "_Ref.mp4";
+        String inputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/" + video + "_SR.mp4";
+        String referencePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/" + video + "_Ref.mp4";
         FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inputPath + " -i " + referencePath + " -filter_complex ssim -f null -");
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
             // Extract SSIMs
@@ -395,7 +392,6 @@ public class DNNActivity extends AppCompatActivity {
 
         new Thread() {
             public void run() {
-
                 initializeDNN();
                 for(String video: selectedVideos){
                     if (!srFramesDir.exists()) {

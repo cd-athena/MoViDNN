@@ -155,7 +155,7 @@ public class SubjectiveActivity extends AppCompatActivity {
 
         String fileNameString = year + '_' + month + '_' + day + "__" +
                                 hour + '_' + minute;
-        final File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/SubjectiveResults");
+        final File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/SubjectiveResults");
 
         if (!dir.exists()) {
             if (!dir.mkdir()) {

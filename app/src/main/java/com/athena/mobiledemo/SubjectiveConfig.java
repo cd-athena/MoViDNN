@@ -31,8 +31,8 @@ public class SubjectiveConfig extends AppCompatActivity {
     private static boolean[]  checkedVideos;
     public static ArrayList<String> testedVideosPaths;
 
-    final String inputDatabaseDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/Input";
-    final String DnnAppliedDatabaseDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MobileDemo/DNNResults";
+    final String inputDatabaseDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/InputVideos";
+    final String DnnAppliedDatabaseDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults";
 
 //    private boolean checkStartStatus() {
 //        for (boolean b : setup) if (!b) return false;
