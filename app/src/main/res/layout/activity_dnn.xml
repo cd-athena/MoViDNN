@@ -25,13 +25,13 @@
             android:weightSum="1">
 
             <TextView
-                android:id="@+id/executionTimeTitle"
+                android:id="@+id/videoNameView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_column="0"
                 android:fontFamily="sans-serif-black"
                 android:gravity="center_horizontal"
-                android:text="DNN Execution"
+                android:text="Video"
                 android:textColor="@color/athena_blue"
                 android:textSize="24dp" />
         </TableRow>
@@ -321,6 +321,41 @@
         </TableRow>
     </TableLayout>
 
+    <LinearLayout
+        android:id="@+id/resultNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/statTable"
+        app:layout_constraintBottom_toTopOf="@+id/srProgressLabel">
+
+        <ImageButton
+            android:id="@+id/resultBackButton"
+            android:background="@drawable/ic_left_arrow_nonactivated"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:layout_margin="8dp" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:background="@color/white"
+            android:layout_margin="8dp"
+            />
+        <ImageButton
+            android:id="@+id/resultNextButton"
+            android:background="@drawable/ic_right_arrow_nonactivated"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:layout_margin="8dp" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/srProgressLabel"
         android:layout_width="wrap_content"
@@ -332,7 +367,7 @@
         app:layout_constraintBottom_toTopOf="@id/srProgressBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/statTable" />
+        app:layout_constraintTop_toBottomOf="@+id/resultNavigation" />
 
     <ProgressBar
         android:id="@+id/srProgressBar"

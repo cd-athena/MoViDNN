@@ -265,6 +265,7 @@ public class DNNConfig extends AppCompatActivity {
             setupData.putStringArray("SELECTED_VIDEOS", selectedVideos);
             dnnIntent.putExtras(setupData);
             startActivity(dnnIntent);
+            finish();
         } else {
             alertBox("Please make sure you have completed the setup!");
         }

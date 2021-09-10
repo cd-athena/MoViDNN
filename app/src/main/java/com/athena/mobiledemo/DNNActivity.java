@@ -1,6 +1,7 @@
 package com.athena.mobiledemo;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -32,7 +34,6 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,12 +45,79 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+class PSNR {
+    float minPSNR;
+    float maxPSNR;
+    float avgPSNR;
+    float yPSNR;
+
+    PSNR(float minPSNR, float maxPSNR, float avgPSNR, float yPSNR) {
+        this.minPSNR = minPSNR;
+        this.maxPSNR = maxPSNR;
+        this.avgPSNR = avgPSNR;
+        this.yPSNR = yPSNR;
+    }
+
+    String getMinPSNR() {
+        return String.format("%.2f", this.minPSNR);
+    }
+
+    String getMaxPSNR() {
+        return String.format("%.2f", this.maxPSNR);
+    }
+
+    String getAvgPSNR() {
+        return String.format("%.2f", this.avgPSNR);
+    }
+
+    String getYPSNR() {
+        return String.format("%.2f", this.yPSNR);
+    }
+}
+
+class SSIM {
+    float allSSIM;
+    float ySSIM;
+
+    SSIM(float allSSIM, float ySSIM) {
+        this.allSSIM = allSSIM;
+        this.ySSIM = ySSIM;
+    }
+
+    String getAllSSIM() {
+        return String.format("%.4f", this.allSSIM);
+    }
+
+    String getYSSIM() {
+        return String.format("%.4f", this.ySSIM);
+    }
+}
+
+class Result {
+    String videoName;
+    int numOfFrames;
+    long executionTime;
+    int fps;
+    PSNR psnr;
+    SSIM ssim;
+
+    public Result(String videoName, int numOfFrames, long executionTime, PSNR psnr, SSIM ssim) {
+        this.videoName = videoName;
+        this.numOfFrames = numOfFrames;
+        this.executionTime = executionTime;
+        this.fps = Math.toIntExact(1000 / this.executionTime);
+        this.psnr = psnr;
+        this.ssim = ssim;
+    }
+}
 
 public class DNNActivity extends AppCompatActivity {
     // Data from the setup
     Bundle data;
     // Display Objects
     Button doneButton;
+    ImageButton nextResultButton;
+    ImageButton prevResultButton;
     TextView executionTimeView;
     TextView fpsView;
     TextView totalFramesView;
@@ -59,6 +127,7 @@ public class DNNActivity extends AppCompatActivity {
     TextView yPSNRView;
     TextView allSSIMView;
     TextView ySSIMView;
+    TextView videoNameView;
     // Variables
     String selectedModel;
     String selectedAccelerator;
@@ -69,8 +138,14 @@ public class DNNActivity extends AppCompatActivity {
     NnApiDelegate nnApiDelegate;
     CompatibilityList compatList;
     Bitmap lrImg;
+    boolean isCompleted = false;
+    int result_index = -1;
+    int video_count;
+    ArrayList<Result> results = new ArrayList<>();
+    // Directories
     final File inputDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/InputVideos");
-    final File resultsDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults");
+    final File resultsDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/Videos");
+    final File objectiveDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/Metrics");
     final File framesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/Frames");
     final File srFramesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/SRFrames");
     // Input variables
@@ -90,10 +165,13 @@ public class DNNActivity extends AppCompatActivity {
         selectedModel = data.getString("SELECTED_NETWORK");
         selectedAccelerator = data.getString("SELECTED_ACCELERATOR");
         selectedVideos = data.getStringArray("SELECTED_VIDEOS");
+        video_count = selectedVideos.length;
         setContentView(R.layout.activity_dnn);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         // View elements
         doneButton = findViewById(R.id.doneButton);
+        nextResultButton = findViewById(R.id.resultNextButton);
+        prevResultButton = findViewById(R.id.resultBackButton);
         executionTimeView = findViewById(R.id.executionTime);
         fpsView = findViewById(R.id.fps);
         totalFramesView = findViewById(R.id.totalFrames);
@@ -104,6 +182,7 @@ public class DNNActivity extends AppCompatActivity {
         yPSNRView = findViewById(R.id.yPSNR);
         allSSIMView = findViewById(R.id.allSSIM);
         ySSIMView = findViewById(R.id.ySSIM);
+        videoNameView = findViewById(R.id.videoNameView);
 
         srProgressBar = findViewById(R.id.srProgressBar);
         srProgressBar.setScaleX(6f);
@@ -119,6 +198,11 @@ public class DNNActivity extends AppCompatActivity {
                 Log.e ("Error:", "Could not create the directories");
             }
         }
+        if (!objectiveDir.exists()) {
+            if (!objectiveDir.mkdir()) {
+                Log.e ("Error:", "Could not create the directories");
+            }
+        }
         setOnClicks();
         runSR();
     }
@@ -126,10 +210,16 @@ public class DNNActivity extends AppCompatActivity {
 
     private void setOnClicks() {
         doneButton.setOnClickListener(this::completeTest);
+        nextResultButton.setOnClickListener(this::nextResult);
+        prevResultButton.setOnClickListener(this::prevResult);
     }
 
     private void completeTest(View view) {
-        // TODO Fill this function
+        if(isCompleted) {
+            Intent mainIntent = new Intent(this, MainActivity.class);
+            startActivity(mainIntent);
+            finish();
+        }
     }
 
     private MappedByteBuffer loadModelFile(String modelName) throws IOException {
@@ -274,6 +364,21 @@ public class DNNActivity extends AppCompatActivity {
         }
     }
 
+    private String getFPS(String videoName) {
+        String inputPath = inputDir + "/" + videoName + ".mp4";
+        // Execute the ffmpeg command
+        FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inputPath );
+        if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
+            return null;
+        } else {
+            String out = ffmpegSession.getOutput();
+            String fpsLine = out.substring(out.lastIndexOf("/s"));
+            String fps = fpsLine.substring(fpsLine.lastIndexOf("/s"), fpsLine.indexOf("fps"));
+            fps = fps.substring(3).replaceAll("\\s", "");
+            fps = String.valueOf(Math.round(Float.parseFloat(fps)));
+            return fps;
+        }
+    }
 
     private void readFrames(String videoName, String fps) {
         if (!framesDir.exists()) {
@@ -295,7 +400,7 @@ public class DNNActivity extends AppCompatActivity {
         fillFrames();
     }
 
-    private TensorImage prepareInput() {
+    private TensorImage prepareInputTensor() {
         TensorImage lrImage = TensorImage.fromBitmap(lrImg);
         ImageProcessor imageProcessor = new ImageProcessor.Builder()
                 .add(new ResizeOp(height, width, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
@@ -306,7 +411,7 @@ public class DNNActivity extends AppCompatActivity {
         return lrImage;
     }
 
-    private TensorImage prepareOutput() {
+    private TensorImage prepareOutputTensor() {
         TensorImage srImage = new TensorImage(DataType.FLOAT32);
         int[] srShape = new int[]{1080, 1920, 3};
         srImage.load(TensorBuffer.createFixedSize(srShape, DataType.FLOAT32));
@@ -323,16 +428,14 @@ public class DNNActivity extends AppCompatActivity {
             bmp.compress(Bitmap.CompressFormat.JPEG, 100, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
             fOut.flush(); // Not really required
             fOut.close(); // do not forget to close the stream
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @SuppressLint("DefaultLocale")
-    private void calculatePSNR(String video) {
-        String inputPath = inputDir + "/" + video + ".mp4";
+    private PSNR calculatePSNR(String video) {
+        String inputPath = resultsDir + "/" + video + "_" + selectedModel + ".mp4";
         String referencePath = inputDir + "/" + video + ".mp4";
         FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inputPath + " -i " + referencePath + " -filter_complex psnr -f null -");
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
@@ -343,25 +446,24 @@ public class DNNActivity extends AppCompatActivity {
             String yPSNRLine = psnrLine.substring(psnrLine.lastIndexOf("y:"), psnrLine.indexOf("u:"));
             String minPSNRLine = psnrLine.substring(psnrLine.lastIndexOf("min:"), psnrLine.indexOf("max:"));
             String maxPSNRLine = psnrLine.substring(psnrLine.lastIndexOf("max:"));
-            Float PSNR = Float.valueOf(avgPSNRLine.substring(8));
-            Float yPSNR = Float.valueOf(yPSNRLine.substring(2));
-            Float minPSNR = Float.valueOf(minPSNRLine.substring(4));
-            Float maxPSNR = Float.valueOf(maxPSNRLine.substring(4));
-            minPSNRView.setText(String.format("%.2f", minPSNR));
-            maxPSNRView.setText(String.format("%.2f", maxPSNR));
-            avgPSNRView.setText(String.format("%.2f", PSNR));
-            yPSNRView.setText(String.format("%.2f", yPSNR));
+            float avgPSNR = Float.parseFloat(avgPSNRLine.substring(8));
+            float yPSNR = Float.parseFloat(yPSNRLine.substring(2));
+            float minPSNR = Float.parseFloat(minPSNRLine.substring(4));
+            float maxPSNR = Float.parseFloat(maxPSNRLine.substring(4));
+
+            return new PSNR(minPSNR, maxPSNR, avgPSNR, yPSNR);
         } else {
             // FAILURE
             Log.e("Error:", String.format("Calculating PSNR failed with state %s and rc %s.%s", ffmpegSession.getState(),
                     ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
+            return null;
         }
     }
 
     @SuppressLint("DefaultLocale")
-    private void calculateSSIM(String video) {
-        String inputPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/" + video + "_SR.mp4";
-        String referencePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/" + video + "_Ref.mp4";
+    private SSIM calculateSSIM(String video) {
+        String inputPath = resultsDir + "/" + video + "_" + selectedModel + ".mp4";
+        String referencePath = inputDir + "/" + video + ".mp4";
         FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inputPath + " -i " + referencePath + " -filter_complex ssim -f null -");
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
             // Extract SSIMs
@@ -369,13 +471,14 @@ public class DNNActivity extends AppCompatActivity {
             String SSIMLine = out.substring(out.lastIndexOf("SSIM"));
             String allSSIMLine = SSIMLine.substring(SSIMLine.lastIndexOf("All:"));
             String ySSIMLine = SSIMLine.substring(SSIMLine.lastIndexOf("Y:"), SSIMLine.indexOf("U:"));
-            Float allSSIM = Float.valueOf(allSSIMLine.substring(4, allSSIMLine.indexOf("(")));
-            Float ySSIM = Float.valueOf(ySSIMLine.substring(2, ySSIMLine.indexOf("(")));
-            allSSIMView.setText(String.format("%.4f", allSSIM));
-            ySSIMView.setText(String.format("%.4f", ySSIM));
+            float allSSIM = Float.parseFloat(allSSIMLine.substring(4, allSSIMLine.indexOf("(")));
+            float ySSIM = Float.parseFloat(ySSIMLine.substring(2, ySSIMLine.indexOf("(")));
+
+            return new SSIM(allSSIM, ySSIM);
         } else {
             Log.e("Error:", String.format("Calculating SSIM failed with state %s and rc %s.%s", ffmpegSession.getState(),
                     ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
+            return null;
         }
     }
 
@@ -386,6 +489,35 @@ public class DNNActivity extends AppCompatActivity {
             }
         }
         path.delete();
+    }
+
+    private void nextResult(View view) {
+        if(isCompleted) {
+            if (result_index != results.size() - 1)
+                result_index += 1;
+            updateResultsView(results.get(result_index));
+        }
+    }
+
+    private void prevResult(View view) {
+        if(isCompleted) {
+            if (result_index != 0)
+                result_index -= 1;
+            updateResultsView(results.get(result_index));
+        }
+    }
+
+    private void updateResultsView(Result result) {
+        videoNameView.setText(result.videoName + " (" + (result_index + 1) + "/" + video_count + ")");
+        totalFramesView.setText(String.valueOf(result.numOfFrames));
+        executionTimeView.setText(String.format("%d ms", result.executionTime));
+        fpsView.setText(String.valueOf(result.fps));
+        minPSNRView.setText(result.psnr.getMinPSNR());
+        maxPSNRView.setText(result.psnr.getMaxPSNR());
+        avgPSNRView.setText(result.psnr.getAvgPSNR());
+        yPSNRView.setText(result.psnr.getYPSNR());
+        allSSIMView.setText(result.ssim.getAllSSIM());
+        ySSIMView.setText(result.ssim.getYSSIM());
     }
 
     private void runSR() {
@@ -399,16 +531,27 @@ public class DNNActivity extends AppCompatActivity {
                             Log.e ("Error:", "Could not create the SR frame directories");
                         }
                     }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            videoNameView.setText("Processing (" + (result_index + 2) + "/" + video_count + ")");
+                            srProgressBar = findViewById(R.id.srProgressBar);
+                            resultsProgressBar = findViewById(R.id.resultsProgressBar);
+                            srProgressBar.setMax(100);
+                            srProgressBar.setProgress(3);
+                            resultsProgressBar.setProgress(0);
+                        }
+                    });
                     // TODO ADD fps here
-                    String fps = "24";
+                    String fps = getFPS(video);
                     readFrames(video, fps);
                     long difference = 0;
                     int frame_index = 0;
                     int max_process = videoFramePaths.size();
                     for(String frame : videoFramePaths) {
                         lrImg = BitmapFactory.decodeFile(framesDir + "/" + frame);
-                        TensorImage lrImage = prepareInput();
-                        TensorImage srImage = prepareOutput();
+                        TensorImage lrImage = prepareInputTensor();
+                        TensorImage srImage = prepareOutputTensor();
                         long startTime = System.currentTimeMillis();
                         srModel.run(lrImage.getBuffer(), srImage.getBuffer());
                         difference += (System.currentTimeMillis() - startTime);
@@ -431,9 +574,6 @@ public class DNNActivity extends AppCompatActivity {
                     }
                     int numOfFrames = srFramePaths.size();
                     difference /= numOfFrames;
-                    totalFramesView.setText(String.valueOf(numOfFrames));
-                    executionTimeView.setText(String.format("%d ms", difference));
-                    fpsView.setText(String.valueOf(Math.toIntExact(1000 / difference)));
                     // Progress bar update
                     runOnUiThread(new Runnable() {
                         @Override
@@ -456,7 +596,7 @@ public class DNNActivity extends AppCompatActivity {
                     deleteRecursive(framesDir);
                     deleteRecursive(srFramesDir);
                     // Calculate Metrics
-                    calculatePSNR(video);
+                    PSNR psnr = calculatePSNR(video);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -464,7 +604,7 @@ public class DNNActivity extends AppCompatActivity {
                             resultsProgressBar.setProgress(7);
                         }
                     });
-                    calculateSSIM(video);
+                    SSIM ssim = calculateSSIM(video);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -474,15 +614,22 @@ public class DNNActivity extends AppCompatActivity {
                     });
                     srFramePaths.clear();
                     videoFramePaths.clear();
-                    // Indicate its completed
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            doneButton = findViewById(R.id.doneButton);
-                            doneButton.setBackgroundColor(getColor(R.color.athena_blue));
-                        }
-                    });
+                    Result result = new Result(video, numOfFrames, difference, psnr, ssim);
+                    results.add(result);
+                    result_index += 1;
                 }
+                // Indicate its completed
+                isCompleted = true;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateResultsView(results.get(result_index));
+                        doneButton.setBackgroundColor(getColor(R.color.athena_blue));
+                        nextResultButton.setBackground(getDrawable(R.drawable.ic_right_arrow_activated));
+                        prevResultButton.setBackground(getDrawable(R.drawable.ic_left_arrow_activated));
+                    }
+                });
+                saveObjectiveResults();
             }
         }.start();
     }
@@ -497,7 +644,7 @@ public class DNNActivity extends AppCompatActivity {
 
         String fileNameString = year + '_' + month + '_' + day + "__" +
                 hour + '_' + minute;
-        final File dir = new File(String.valueOf(resultsDir));
+        final File dir = new File(String.valueOf(objectiveDir));
 
         if (!dir.exists()) {
             if (!dir.mkdir()) {
@@ -517,17 +664,13 @@ public class DNNActivity extends AppCompatActivity {
 
         try {
             Writer log_writer = new OutputStreamWriter(new FileOutputStream(log));
-            log_writer.write("VideoName,minPSNR,maxPSNR,avgPSNR,yPSNR,allSSIM,ySSIM \n"); // TODO: add PSNR, SSIM
-
-            /**
-            for (int i = 0; i < selectedVideos.length; i ++) {
-                String string = selectedVideos[i] + ',' +
-                        minPSNR.get(i) + '\n';
-                log_writer.write(string);
+            log_writer.write("Model,VideoName,executionTimeMs,minPSNR,maxPSNR,avgPSNR,yPSNR,allSSIM,ySSIM \n");
+            for(Result result:results) {
+                log_writer.write(selectedModel + "," + result.videoName + "," + result.executionTime + "," + result.psnr.getMinPSNR() + "," + result.psnr.getMaxPSNR() + "," +
+                        result.psnr.getAvgPSNR() + "," + result.psnr.getYPSNR() + "," + result.ssim.getAllSSIM() + "," +
+                        result.ssim.getYSSIM() + "\n");
+                log_writer.flush();
             }
-            **/
-
-            log_writer.flush();
         }
         catch (IOException e) {
             e.printStackTrace();
