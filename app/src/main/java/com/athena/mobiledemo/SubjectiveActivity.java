@@ -49,16 +49,10 @@ public class SubjectiveActivity extends AppCompatActivity {
 
         rate.clear();
         videoNames.clear();
-        // Get all test videos
-
 
         // get subjective configuration
         checkedNetworks = getCheckedItem(SubjectiveConfig.getCheckedModels(), SubjectiveConfig.availableModels);
         checkedVideos   = getCheckedItem(SubjectiveConfig.getCheckedVideos(), SubjectiveConfig.availableVideos);
-
-        for (String videoPath : videoPaths) {
-            Log.e("Minh", "This video will be tested: " + videoPath);
-        }
 
         NUM_OF_TEST_VIDEO = videoPaths.size();
 
@@ -102,7 +96,6 @@ public class SubjectiveActivity extends AppCompatActivity {
             public void onCompletion(MediaPlayer mp) {
                 String[] pathElements = uri.getPath().split("/");
                 String videoName = pathElements[pathElements.length-1];
-                Log.e("Log:", "Video name: " + videoName);
                 onTestVideoEnd(videoName);
             }
         });
@@ -121,7 +114,7 @@ public class SubjectiveActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 rate.add(rates_int[which]);
                 videoNames.add(videoName);
-                Log.e("Log:", "Video # " + rate.size() + ". Rate: "
+                Log.i("Log", "Video # " + rate.size() + ". MoS: "
                         + rate.get(rate.size()-1) + " for video "
                         + videoNames.get(videoNames.size()-1));
 
@@ -159,7 +152,7 @@ public class SubjectiveActivity extends AppCompatActivity {
 
         if (!dir.exists()) {
             if (!dir.mkdir()) {
-                Log.e ("Error:", "Could not create the directories");
+                Log.e ("Error", "Could not create the directories");
             }
         }
 
@@ -175,11 +168,25 @@ public class SubjectiveActivity extends AppCompatActivity {
 
         try {
             Writer log_writer = new OutputStreamWriter(new FileOutputStream(log));
-            log_writer.write("VideoName,Rate\n"); // TODO: add PSNR, SSIM
+            log_writer.write("Model,VideoName,MoS\n");
 
             for (int i = 0; i < rate.size(); i ++) {
-                String string = videoNames.get(i) + ',' +
-                                rate.get(i) + '\n';
+                String[] temp = videoNames.get(i).split("[_.]");
+                String string = "";
+                String videoName = "";
+                String modelName = "";
+
+                if (temp.length > 2) {     // DNN-applied video
+                    videoName = temp[0];
+                    modelName = temp[1] + "_" + temp[2];
+                }
+                else {                     // Input video
+                    videoName = temp[0];
+                    modelName = "None";
+                }
+                string = modelName + ',' +
+                        videoName + ',' +
+                        rate.get(i) + '\n';
                 log_writer.write(string);
             }
 

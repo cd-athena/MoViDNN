@@ -195,12 +195,12 @@ public class DNNActivity extends AppCompatActivity {
         compatList = new CompatibilityList();
         if (!resultsDir.exists()) {
             if (!resultsDir.mkdir()) {
-                Log.e ("Error:", "Could not create the directories");
+                Log.e ("Error", "Could not create the directories");
             }
         }
         if (!objectiveDir.exists()) {
             if (!objectiveDir.mkdir()) {
-                Log.e ("Error:", "Could not create the directories");
+                Log.e ("Error", "Could not create the directories");
             }
         }
         setOnClicks();
@@ -251,7 +251,7 @@ public class DNNActivity extends AppCompatActivity {
             options.addDelegate(gpuDelegate);
             srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"), options);
         } catch (IOException e) {
-            Log.e("Error:" ,"Error while initializing model with GPU: " + e);
+            Log.e("Error" ,"Error while initializing model with GPU: " + e);
         }
     }
 
@@ -264,7 +264,7 @@ public class DNNActivity extends AppCompatActivity {
             options.addDelegate(nnApiDelegate);
             srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"), options);
         } catch (IOException e) {
-            Log.e("Error:" ,"Error while initializing model with NNAPI: " + e);
+            Log.e("Error" ,"Error while initializing model with NNAPI: " + e);
         }
     }
 
@@ -273,7 +273,7 @@ public class DNNActivity extends AppCompatActivity {
         try {
             srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"));
         } catch (IOException e) {
-            Log.e("Error:" ,"Error while initializing model: " + e);
+            Log.e("Error" ,"Error while initializing model: " + e);
         }
     }
 
@@ -346,10 +346,10 @@ public class DNNActivity extends AppCompatActivity {
         FFmpegSession ffmpegSession = FFmpegKit.execute("-y -i " + inputPath + " -s 1920x1080 -vf format=yuv420p,fps=" + fps + " -preset ultrafast " + outputPath);
 
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
-            Log.e("Log:", "Saved SR video successfully");
+            Log.i("Log", "Saved SR video successfully");
         } else {
             // Failure
-            Log.d("Error:", String.format("Saving SR video failed with state %s and rc %s.%s", ffmpegSession.getState(),
+            Log.d("Error", String.format("Saving SR video failed with state %s and rc %s.%s", ffmpegSession.getState(),
                     ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
         }
     }
@@ -383,7 +383,7 @@ public class DNNActivity extends AppCompatActivity {
     private void readFrames(String videoName, String fps) {
         if (!framesDir.exists()) {
             if (!framesDir.mkdir()) {
-                Log.e ("Error:", "Could not create the directories");
+                Log.e ("Error", "Could not create the directories");
             }
         }
         String inputPath = inputDir + "/" + videoName + ".mp4";
@@ -391,10 +391,10 @@ public class DNNActivity extends AppCompatActivity {
         // Execute the ffmpeg command
         FFmpegSession ffmpegSession = FFmpegKit.execute("-i " + inputPath + " -vf fps=" + fps + " -preset ultrafast " + outputPath);
         if (ReturnCode.isSuccess(ffmpegSession.getReturnCode())) {
-            Log.e("Log:", "Extracted frames successfully");
+            Log.i("Log", "Extracted frames successfully");
         } else {
             // Failure
-            Log.d("Error:", String.format("Extracting frames failed with state %s and rc %s.%s", ffmpegSession.getState(),
+            Log.d("Error", String.format("Extracting frames failed with state %s and rc %s.%s", ffmpegSession.getState(),
                     ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
         }
         fillFrames();
@@ -454,7 +454,7 @@ public class DNNActivity extends AppCompatActivity {
             return new PSNR(minPSNR, maxPSNR, avgPSNR, yPSNR);
         } else {
             // FAILURE
-            Log.e("Error:", String.format("Calculating PSNR failed with state %s and rc %s.%s", ffmpegSession.getState(),
+            Log.e("Error", String.format("Calculating PSNR failed with state %s and rc %s.%s", ffmpegSession.getState(),
                     ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
             return null;
         }
@@ -476,7 +476,7 @@ public class DNNActivity extends AppCompatActivity {
 
             return new SSIM(allSSIM, ySSIM);
         } else {
-            Log.e("Error:", String.format("Calculating SSIM failed with state %s and rc %s.%s", ffmpegSession.getState(),
+            Log.e("Error", String.format("Calculating SSIM failed with state %s and rc %s.%s", ffmpegSession.getState(),
                     ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
             return null;
         }
@@ -528,7 +528,7 @@ public class DNNActivity extends AppCompatActivity {
                 for(String video: selectedVideos){
                     if (!srFramesDir.exists()) {
                         if (!srFramesDir.mkdir()) {
-                            Log.e ("Error:", "Could not create the SR frame directories");
+                            Log.e ("Error", "Could not create the SR frame directories");
                         }
                     }
                     runOnUiThread(new Runnable() {
@@ -648,7 +648,7 @@ public class DNNActivity extends AppCompatActivity {
 
         if (!dir.exists()) {
             if (!dir.mkdir()) {
-                Log.e ("Error:", "Could not create the directories");
+                Log.e ("Error", "Could not create the directories");
             }
         }
 

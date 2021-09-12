@@ -32,7 +32,7 @@ public class SubjectiveConfig extends AppCompatActivity {
     public static ArrayList<String> testedVideosPaths;
 
     final String inputDatabaseDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/InputVideos";
-    final String DnnAppliedDatabaseDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults";
+    final String DnnAppliedDatabaseDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/Videos";
 
 //    private boolean checkStartStatus() {
 //        for (boolean b : setup) if (!b) return false;
@@ -144,7 +144,6 @@ public class SubjectiveConfig extends AppCompatActivity {
                                 for (int i = 0; i < checkedVideos.length; i++) {
                                     if (checkedVideos[i]) {
                                         testedVideosPaths.add(getReferenceTestedVideoPath(availableVideos[i]));
-                                        Log.e("Minh", "tested REF Path: " + getReferenceTestedVideoPath(availableVideos[i]));
                                     }
                                 }
                             }
@@ -152,20 +151,15 @@ public class SubjectiveConfig extends AppCompatActivity {
                                 for (int i = 0; i < checkedVideos.length; i++) {
                                     if (checkedVideos[i]) {
                                         testedVideosPaths.add(getDnnVideoPath(availableVideos[i]));
-                                        Log.e("Minh", "testedPath: " + i + ": " + getDnnVideoPath(availableVideos[i]));
-
 
                                         if (testedVideosPaths.size() > 0) {
                                             for (int j = 0; j < testedVideosPaths.size(); j++) {
-                                                Log.e("Minh", "testedPath: " + testedVideosPaths.get(j));
 
                                                 if (testedVideosPaths.get(j).equals(getReferenceTestedVideoPath(availableVideos[i]))) {
-                                                    Log.e("Minh", "======= Already added reference");
                                                     break;
                                                 } else {
                                                     if (j == testedVideosPaths.size() - 1) {
                                                         testedVideosPaths.add(getReferenceTestedVideoPath(availableVideos[i]));
-                                                        Log.e("Minh", "======= Add NEW reference");
                                                     }
                                                 }
                                             }
@@ -205,7 +199,7 @@ public class SubjectiveConfig extends AppCompatActivity {
                 availableModels[i] = availableModels[i].replace(".tflite", "");
             }
         } catch (IOException e) {
-            Log.e("Error:", "Error while reading list of models");
+            Log.e("Error", "Error while reading list of models");
         }
 
         checkedModels = new boolean[availableModels.length];
@@ -222,7 +216,6 @@ public class SubjectiveConfig extends AppCompatActivity {
             for (int i =0; i < videos.length; i++) {
                 availableVideos[i] = videos[i].getName().replace(".mp4", "");
                 availableVideosPaths[i] = videos[i].getAbsolutePath();
-                Log.e("Minh", "Available video paths: "+ videos[i].getAbsolutePath());
             }
         }
         else {  // subjective test with SR and reference videos
@@ -237,7 +230,6 @@ public class SubjectiveConfig extends AppCompatActivity {
                         final Pattern p = Pattern.compile(pattern);
                         if (p.matcher(videos[i].getName()).matches()) {
                             suitableVideos.add(videos[i].getName().replace(".mp4", ""));
-                            Log.e("Minh", "********** Found Available Video for selection: " + videos[i].getName());
                         }
                     }
                 }

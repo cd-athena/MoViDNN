@@ -70,12 +70,12 @@ public class DNNConfig extends AppCompatActivity {
                     networkList.add(additionalNetwork.getName().replace(".tflite", ""));
                 }
             } catch (NullPointerException e) {
-                Log.e("Log:", "No additional networks found!");
+                Log.i("Log", "No additional networks found!");
             }
             availableModels = (String[]) networkList.toArray(new String[0]);
 
         } catch (IOException e) {
-            Log.e("Error:", "Error while reading list of models");
+            Log.e("Error", "Error while reading list of models");
         }
     }
 
