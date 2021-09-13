@@ -89,11 +89,9 @@ def quantized_sr(model_file, input_image, output_name):
 
 # normal_sr(model_file="./Checkpoints/DnCNN_25", input_image="./NoisyTest/DIV2K_gaussian25_0136x1.png",
 #           output_name="./dncn_25_0136.png")
-
-quantized_sr(model_file="./QuantModels/dncnn_25.tflite", input_image="./NoisyTest/DIV2K_gaussian25_0136x1.png",
-             output_name="./dncnn_quant_25_0136.png")
-
-# quantized_sr(model_file="./QuantModels/srnet_x3.tflite", input_image="./DIV2K/DIV2K_train_LR_bicubic/X3/0790x3.png")
+quantized_sr(model_file="./QuantModels/srabrnet_x2.tflite", input_image="./DIV2K/DIV2K_train_LR_bicubic/X2/0791x2.png", output_name="./srabrnet_x2.png")
+quantized_sr(model_file="./QuantModels/srabrnet_x3.tflite", input_image="./DIV2K/DIV2K_train_LR_bicubic/X3/0791x3.png", output_name="./srabrnet_x3.png")
+quantized_sr(model_file="./QuantModels/srabrnet_x4.tflite", input_image="./DIV2K/DIV2K_train_LR_bicubic/X4/0791x4.png", output_name="./srabrnet_x4.png")
 # normal_sr(model_file="./Checkpoints/SRNetMod_x2", input_image="./DIV2K/DIV2K_train_LR_bicubic/X2/0791x2.png", output_name="./srnet_x2.png")
 # normal_sr(model_file="./Checkpoints/SRNet_x3", input_image="./DIV2K/DIV2K_train_LR_bicubic/X3/0791x3.png", output_name="./srnet_x3.png")
 # normal_sr(model_file="./Checkpoints/SRNet_x4", input_image="./DIV2K/DIV2K_train_LR_bicubic/X4/0791x4.png", output_name="./srnet_x4.png")

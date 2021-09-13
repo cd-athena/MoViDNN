@@ -28,46 +28,34 @@ import java.util.Random;
 
 
 public class SubjectiveActivity extends AppCompatActivity {
+    Bundle data;
     private static int       NUM_OF_TEST_VIDEO;
     private VideoView       videoView;
     private MediaController mediaController;
     private static int      video_index = 1;
     private static int      current_num_videos = 0;
 
-    private static List<String> checkedNetworks = new ArrayList<>();
-    private static List<String> checkedScales   = new ArrayList<>();
-    private static List<String> checkedVideos   = new ArrayList<>();
-
     public List<Integer>    rate = new ArrayList<>();
     public List<String>     videoNames = new ArrayList<>();
-    public List<String>     videoPaths = SubjectiveConfig.testedVideosPaths;
+    public List<String>     videoPaths;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subjective_test);
-
+        data = this.getIntent().getExtras();
+        videoPaths = data.getStringArrayList("SELECTED_VIDEOS");
         rate.clear();
         videoNames.clear();
+        // Get all test videos
 
-        // get subjective configuration
-        checkedNetworks = getCheckedItem(SubjectiveConfig.getCheckedModels(), SubjectiveConfig.availableModels);
-        checkedVideos   = getCheckedItem(SubjectiveConfig.getCheckedVideos(), SubjectiveConfig.availableVideos);
+        for (String videoPath : videoPaths) {
+            Log.e("Minh", "This video will be tested: " + videoPath);
+        }
 
         NUM_OF_TEST_VIDEO = videoPaths.size();
 
         onSubjectiveTestRunning();
-    }
-
-    private List<String> getCheckedItem(boolean[] arrayChecked, String[] arrayString) {
-        List<String> output = new ArrayList<>();
-
-        for (int i = 0; i < arrayChecked.length; i++) {
-            if (arrayChecked[i]) {
-                output.add(arrayString[i]);
-            }
-        }
-        return output;
     }
 
     private void onSubjectiveTestRunning() {
@@ -196,7 +184,7 @@ public class SubjectiveActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        String[] options = {"Again", "Home"};
+        String[] options = {"AGAIN", "HOME"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setNegativeButton(options[1], new DialogInterface.OnClickListener(){
@@ -212,6 +200,7 @@ public class SubjectiveActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(SubjectiveActivity.this, SubjectiveInstruction.class);
+                intent.putExtras(data);
                 startActivity(intent);
             }
         });

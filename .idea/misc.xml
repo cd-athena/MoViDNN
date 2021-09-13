@@ -5,8 +5,9 @@
       <map>
         <entry key="app/src/main/res/layout/activity_dnn.xml" value="0.28306159420289856" />
         <entry key="app/src/main/res/layout/activity_dnnconfig.xml" value="0.28306159420289856" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.5684210526315789" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.38558104078611577" />
         <entry key="app/src/main/res/layout/activity_subjective_config.xml" value="0.3335526315789474" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/athena_logo.xml" value="0.28802083333333334" />
       </map>
     </option>
   </component>

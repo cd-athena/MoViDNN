@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class SubjectiveConfig extends AppCompatActivity {
-    // Status check
-//    boolean[] setup = {false, false, false};
     Button nextButton;
 
     public static String[]    availableModels;
@@ -33,11 +31,6 @@ public class SubjectiveConfig extends AppCompatActivity {
 
     final String inputDatabaseDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/InputVideos";
     final String DnnAppliedDatabaseDirectoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/Videos";
-
-//    private boolean checkStartStatus() {
-//        for (boolean b : setup) if (!b) return false;
-//        return true;
-//    }
 
     private void approveColor(Button button) {
         button.setBackgroundColor(getColor(R.color.athena_blue));
@@ -223,13 +216,13 @@ public class SubjectiveConfig extends AppCompatActivity {
             File[] videos = inputDirectory.listFiles();
             ArrayList<String> suitableVideos = new ArrayList<>();
 
-            for (int i = 0; i < videos.length; i++) {
-                for (int j = 0; j < availableModels.length; j++){
+            for (File video : videos) {
+                for (int j = 0; j < availableModels.length; j++) {
                     if (checkedModels[j]) {
                         String pattern = ".*_" + availableModels[j] + ".mp4";
                         final Pattern p = Pattern.compile(pattern);
-                        if (p.matcher(videos[i].getName()).matches()) {
-                            suitableVideos.add(videos[i].getName().replace(".mp4", ""));
+                        if (p.matcher(video.getName()).matches()) {
+                            suitableVideos.add(video.getName().replace(".mp4", ""));
                         }
                     }
                 }
@@ -280,14 +273,10 @@ public class SubjectiveConfig extends AppCompatActivity {
             alertBox("Some parameters are not selected. Please check again");
         else {
             Intent instructionIntent = new Intent(this, SubjectiveInstruction.class);
+            Bundle setupData = new Bundle();
+            setupData.putStringArrayList("SELECTED_VIDEOS", testedVideosPaths);
+            instructionIntent.putExtras(setupData);
             startActivity(instructionIntent);
         }
-    }
-
-    public static boolean[] getCheckedModels() {
-        return checkedModels;
-    }
-    public static boolean[] getCheckedVideos() {
-        return checkedVideos;
     }
 }
