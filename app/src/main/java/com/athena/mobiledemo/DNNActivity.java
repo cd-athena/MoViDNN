@@ -44,6 +44,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 class PSNR {
     float minPSNR;
@@ -358,10 +359,11 @@ public class DNNActivity extends AppCompatActivity {
     private void fillFrames() {
         File inputDirectory = new File(String.valueOf(framesDir));
         File[] frames = inputDirectory.listFiles();
-        videoFramePaths = new ArrayList<>();
+        videoFramePaths = new ArrayList<String>();
         for (File frame : frames) {
             videoFramePaths.add(frame.getName());
         }
+        Collections.sort(videoFramePaths);
     }
 
     private String getFPS(String videoName) {
@@ -542,7 +544,6 @@ public class DNNActivity extends AppCompatActivity {
                             resultsProgressBar.setProgress(0);
                         }
                     });
-                    // TODO ADD fps here
                     String fps = getFPS(video);
                     readFrames(video, fps);
                     long difference = 0;
