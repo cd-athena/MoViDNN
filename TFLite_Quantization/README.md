@@ -15,7 +15,7 @@ scikit-learn
 
 ## Training Own Model
 
-### Preparing the Model
+### Preparing the Model
 
 Before training your own model, you need to implement it in **Keras** and put it into the **Models** folder. We provide three models inside, you can check their structure and prepare your model accordingly.
 
@@ -31,7 +31,7 @@ MoViDNN_Quantization
 │   │  <YourModel>.py
 ```
 
-### Preparing the Data
+### Preparing the Data
 
 Once your model is in the correct structure and folder, next step is to prepare the training dataset. We provide the code to load the distorted and ground truth images as a **Keras Dataset**. 
 

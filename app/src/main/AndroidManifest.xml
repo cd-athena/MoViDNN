@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.athena.mobiledemo">
+    package="com.athena.movidnn">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -22,25 +22,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MobileDemo">
         <activity
-            android:name=".DNNConfig"
+            android:name="com.athena.movidnn.DNNConfig"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".DNNActivity"
-            android:parentActivityName=".DNNConfig"
+            android:name="com.athena.movidnn.DNNActivity"
+            android:parentActivityName="com.athena.movidnn.DNNConfig"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".SubjectiveConfig"
-            android:parentActivityName=".MainActivity"
+            android:name="com.athena.movidnn.SubjectiveConfig"
+            android:parentActivityName="com.athena.movidnn.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".SubjectiveInstruction"
-            android:parentActivityName=".SubjectiveConfig"
+            android:name="com.athena.movidnn.SubjectiveInstruction"
+            android:parentActivityName="com.athena.movidnn.SubjectiveConfig"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".SubjectiveActivity"
-            android:parentActivityName=".SubjectiveInstruction"
+            android:name="com.athena.movidnn.SubjectiveActivity"
+            android:parentActivityName="com.athena.movidnn.SubjectiveInstruction"
             android:screenOrientation="landscape" />
-        <activity android:name=".MainActivity">
+        <activity android:name="com.athena.movidnn.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

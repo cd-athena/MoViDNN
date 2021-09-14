@@ -1,4 +1,4 @@
-package com.athena.mobiledemo;
+package com.athena.movidnn;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;

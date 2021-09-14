@@ -1,4 +1,4 @@
-package com.athena.mobiledemo;
+package com.athena.movidnn;
 
 import org.junit.Test;
 

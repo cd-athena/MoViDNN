@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.athena.mobiledemo"
+        applicationId "com.athena.movidnn"
         minSdkVersion 29
         targetSdkVersion 30
         versionCode 1

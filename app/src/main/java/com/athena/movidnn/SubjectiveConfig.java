@@ -1,4 +1,4 @@
-package com.athena.mobiledemo;
+package com.athena.movidnn;
 
 import android.content.DialogInterface;
 import android.content.Intent;
