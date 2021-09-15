@@ -65,7 +65,44 @@ You can initialize a dataset to train **x2** super-resolution network, using the
 train_gen = SRDataset(lr_root="./DIV2K/X2/", hr_root="./DIV2K/X1/", batch_size=32)
 ```
 
-<CONTINUE HERE>
+### Training Default Models (ESPCN, EVSRNet, DnCNN)
+
+Once you prepared the dataset, you can use the `train.py` script to train one of the default models using the following command:
+
+```bash
+python3 train.py -d EVSRNet -s 2 -data ./Dataset/ -n EVSRNet_x2
+```
+
+This will start the training with default parameters (*i.e.,* Adam optimizer with *5e-6* as learning rate, *MSE* as the loss function, *50* epochs)
+
+### Training Own Models
+
+Once you prepared your model and the dataset, you can use the `train.py` script to train your model but some modifications are required.
+
+First, you need to import your model:
+
+```python
+from Models import ESPCN, EVSRNet, DnCNN, <your_model>
+```
+
+Then, you need to build your model before calling `train_sr` function:
+
+```python
+model = <your_model>.build(scale_factor=<scale>, num_channels=3, input_shape=(None, None, 3))
+```
+
+Finally, you can call `train_sr` function with your **model** as the first parameter and **model_name** as the second parameter:
+
+```python
+train(<your_model>, "<your_model>", scale=<scale>, data_path="./Dataset/", num_epochs=50, batch_size=16)
+```
+
+Also, you can modify the optimizer inside the function if you need to:
+
+```python
+adam = tf.keras.optimizers.Adam(learning_rate=5e-6)
+model.compile(optimizer=adam, loss='mse')
+```
 
 ## Quantization
 
