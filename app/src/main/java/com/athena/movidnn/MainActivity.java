@@ -32,10 +32,12 @@ public class MainActivity extends AppCompatActivity {
     public void startDNN(View view) {
         Intent dnnIntent = new Intent(this, DNNConfig.class);
         startActivity(dnnIntent);
+        finish();
     }
 
     public void startSubjective(View view) {
         Intent subjectiveIntent = new Intent(this, SubjectiveConfig.class);
         startActivity(subjectiveIntent);
+        finish();
     }
 }

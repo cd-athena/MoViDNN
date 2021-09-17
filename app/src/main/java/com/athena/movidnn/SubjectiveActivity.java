@@ -192,6 +192,7 @@ public class SubjectiveActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(SubjectiveActivity.this, MainActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -202,6 +203,7 @@ public class SubjectiveActivity extends AppCompatActivity {
                 Intent intent = new Intent(SubjectiveActivity.this, SubjectiveInstruction.class);
                 intent.putExtras(data);
                 startActivity(intent);
+                finish();
             }
         });
 

@@ -23,6 +23,7 @@
         android:theme="@style/Theme.MoViDNN">
         <activity
             android:name="com.athena.movidnn.DNNConfig"
+            android:parentActivityName="com.athena.movidnn.MainActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name="com.athena.movidnn.DNNActivity"
