@@ -20,6 +20,8 @@ We also provide a Python repository that can be used to convert existing Tensorf
 
 **MoViDNN** can be used as a platform to evaluate the performance of video quality enhancement DNNs. It provides objective metrics (PSNR and SSIM) for the whole video along with measuring the execution performance of the device (execution time, executed frames per second).
 
+
+
 ### DNN Configuration
 
 <p align="left">
@@ -27,6 +29,8 @@ We also provide a Python repository that can be used to convert existing Tensorf
 </p>
 
 This is the first screen of the DNN test and in this screen the DNN, the accelerator, and input videos are selected which then will be used during the DNN evaluation.
+
+
 
 ### DNN Execution
 
@@ -39,6 +43,8 @@ This is the first screen of the DNN test and in this screen the DNN, the acceler
 Once the configuration is completed, DNN execution activity is run. It begins with extracting each frame from the input video using FFMpeg and saving them into a temporary folder. Afterward, the DNN is applied for each frame, and results are saved into another temporary folder. Once the DNN applied frames are ready, they are converted to a video using FFMpeg again. Finally, objective metric calculations are done with FFMpeg using the DNN applied video and the input video. 
 
 In this step, DNN applied video is saved into `DNNResults/Videos/` folder, and CSV file containing objective metrics for each video is saved into `DNNResults/Metrics/`folder.
+
+
 
 ### Adding New DNNs and Videos
 
@@ -61,6 +67,8 @@ MoViDNN
 │   │  <YourVideo>.mp4
 ..
 ```
+
+
 
 
 
