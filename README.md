@@ -26,6 +26,8 @@ We also provide a Python repository that can be used to convert existing Tensorf
 
 <p align="left">
   <img src="readme_imgs/DNNConfig.jpg" width="200">
+  <img src="readme_imgs/DNNConfigNetwork.jpg" width="200">
+  <img src="readme_imgs/DNNConfigVideos.jpg" width="200">
 </p>
 
 This is the first screen of the DNN test and in this screen the DNN, the accelerator, and input videos are selected which then will be used during the DNN evaluation.
@@ -88,15 +90,13 @@ In the end, ratings are saved into a CSV file which can be used later.
 
 
 
+<img src="readme_imgs/SubjectiveInstructions.jpg" width="600">
+
 <p float="left", align="center">
-  <img src="readme_imgs/SubjectiveInstructions.jpg" width="200">
+  <img src="readme_imgs/SubjectiveRun.jpg" width="600">
 </p>
 
 <p float="left", align="center">
-  <img src="readme_imgs/SubjectiveRun.jpg" width="200">
-</p>
-
-<p float="left", align="center">
-  <img src="readme_imgs/SubjectiveRating.jpg" width="200">
+  <img src="readme_imgs/SubjectiveRating.jpg" width="600">
 </p>
 
