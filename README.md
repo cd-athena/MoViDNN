@@ -94,3 +94,6 @@ In the end, ratings are saved into a CSV file which can be used later.
   <img src="readme_imgs/SubjectiveRating.jpg" width="600">
 </p>
 
+## Authors
+* Ekrem Çetinkaya, Christian Doppler Laboratory ATHENA, Alpen-Adria-Universitaet Klagenfurt
+* Minh Nguyen, Christian Doppler Laboratory ATHENA, Alpen-Adria-Universitaet Klagenfurt
