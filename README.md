@@ -14,17 +14,14 @@ We use [*tensorflow-lite*](https://www.tensorflow.org/lite) as the DNN framework
 
 We also provide a Python repository that can be used to convert existing Tensorflow/Keras models to **tensorflow-lite** versions for Android. [Preparation](https://github.com/cd-athena/MoViDNN/tree/main/TFLite_Quantization)
 
-
-
-## DNN Evaluation
+## DNN Evaluation
 
 **MoViDNN** can be used as a platform to evaluate the performance of video quality enhancement DNNs. It provides objective metrics (PSNR and SSIM) for the whole video along with measuring the execution performance of the device (execution time, executed frames per second).
 
 
+### DNN Configuration
 
-### DNN Configuration
-
-<p align="left">
+<p float="left", align="center">
   <img src="readme_imgs/DNNConfig.jpg" width="200">
   <img src="readme_imgs/DNNConfigNetwork.jpg" width="200">
   <img src="readme_imgs/DNNConfigVideos.jpg" width="200">
@@ -70,11 +67,7 @@ MoViDNN
 ..
 ```
 
-
-
-
-
-## Subjective Evaluation
+## Subjective Evaluation
 
 MoViDNN can also be used as a subjective test platform to evaluate the DNN applied videos. Once the DNN evaluation is done for a given network and the resulting video is saved, subjective test can be started.
 
@@ -89,8 +82,9 @@ In the first screen, instructions are shown to the tester. Once they are read ca
 In the end, ratings are saved into a CSV file which can be used later.
 
 
-
-<img src="readme_imgs/SubjectiveInstructions.jpg" width="600">
+<p float="left", align="center">
+  <img src="readme_imgs/SubjectiveInstructions.jpg" width="600">
+</p>
 
 <p float="left", align="center">
   <img src="readme_imgs/SubjectiveRun.jpg" width="600">
