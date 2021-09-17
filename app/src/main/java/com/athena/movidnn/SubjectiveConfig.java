@@ -277,7 +277,6 @@ public class SubjectiveConfig extends AppCompatActivity {
             setupData.putStringArrayList("SELECTED_VIDEOS", testedVideosPaths);
             instructionIntent.putExtras(setupData);
             startActivity(instructionIntent);
-            finish();
         }
     }
 }

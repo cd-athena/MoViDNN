@@ -8,12 +8,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,7 +28,7 @@ public class DNNConfig extends AppCompatActivity {
     Button startButton;
     SwitchCompat defaultVideoSwitch;
     SwitchCompat defaultNetworkSwitch;
-    private static String[] availableModels;
+    private static String[] availableNetworks;
     String[] accelerators;
     private static String[] availableVideos;
     boolean[] checkedVideos;
@@ -50,30 +48,28 @@ public class DNNConfig extends AppCompatActivity {
     }
 
     public void fillNetworks() {
-        try {
-            ArrayList<String> networkList = new ArrayList<>();
-            if(defaultNetworkSwitch.isChecked()) {
-                Log.e("Ekrem", "Swith is checked!");
-                String[] defaultNetworks = getAssets().list("models/");
-                for (String defaultNetwork : defaultNetworks) {
-                    networkList.add(defaultNetwork.replace(".tflite", ""));
-                }
-            }
-            try {
-                String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/Networks";
-                File inputDirectory = new File(directoryPath);
-                File[] additionalNetworks = inputDirectory.listFiles();
-                for (File additionalNetwork : additionalNetworks) {
-                    networkList.add(additionalNetwork.getName().replace(".tflite", ""));
-                }
-            } catch (NullPointerException e) {
-                Log.i("Log", "No additional networks found!");
-            }
-            availableModels = (String[]) networkList.toArray(new String[0]);
-
-        } catch (IOException e) {
-            Log.e("Error", "Error while reading list of models");
+        ArrayList<String> networkList = new ArrayList<>();
+        String directoryPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/Networks";
+        File inputDirectory = new File(directoryPath);
+        File[] additionalNetworks = inputDirectory.listFiles();
+        for (File additionalNetwork : additionalNetworks) {
+            networkList.add(additionalNetwork.getName().replace(".tflite", ""));
         }
+        availableNetworks = (String[]) networkList.toArray(new String[0]);
+        if (!defaultNetworkSwitch.isChecked()) {
+            filterDefaultNetworks();
+        }
+    }
+
+    private void filterDefaultNetworks() {
+        ArrayList<String> filteredNetworks = new ArrayList<>();
+        Set<String> defaultNetworks = new HashSet<>(Arrays.asList("dncnn_x1", "espcn_x2",
+                "espcn_x3", "espcn_x4", "evsrnet_x2", "evsrnet_x3", "evsrnet_x4"));
+        for(String network: availableNetworks) {
+            if(!defaultNetworks.contains(network))
+                filteredNetworks.add(network);
+        }
+        availableNetworks = (String[]) filteredNetworks.toArray(new String[0]);
     }
 
     private void filterDefaultVideos() {
@@ -137,7 +133,7 @@ public class DNNConfig extends AppCompatActivity {
         fillNetworks();
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Pick the DNN");
-        alertDialog.setSingleChoiceItems(availableModels, checkedNetwork, new DialogInterface.OnClickListener() {
+        alertDialog.setSingleChoiceItems(availableNetworks, checkedNetwork, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 checkedNetwork = which;
@@ -257,17 +253,13 @@ public class DNNConfig extends AppCompatActivity {
         if(checkStartStatus()) {
             Intent dnnIntent = new Intent(getBaseContext(), DNNActivity.class);
             Bundle setupData = new Bundle();
-            setupData.putString("SELECTED_NETWORK", availableModels[checkedNetwork]);
+            setupData.putString("SELECTED_NETWORK", availableNetworks[checkedNetwork]);
             setupData.putString("SELECTED_ACCELERATOR", accelerators[checkedAccelerator]);
             setupData.putStringArray("SELECTED_VIDEOS", selectedVideos);
             dnnIntent.putExtras(setupData);
             startActivity(dnnIntent);
-            finish();
         } else {
             alertBox("Please make sure you have completed the setup!");
         }
     }
-
-    public static String[] getAvailableModels() { return availableModels;}
-    public static String[] getAvailableVideos() { return availableVideos;}
 }

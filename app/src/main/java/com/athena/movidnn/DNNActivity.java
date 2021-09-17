@@ -33,6 +33,7 @@ import org.tensorflow.lite.support.image.ops.ResizeOp;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -145,6 +146,7 @@ public class DNNActivity extends AppCompatActivity {
     ArrayList<Result> results = new ArrayList<>();
     // Directories
     final File inputDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/InputVideos");
+    final File networksDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/Networks");
     final File resultsDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/Videos");
     final File objectiveDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/DNNResults/Metrics");
     final File framesDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/MoViDNN/Frames");
@@ -204,6 +206,9 @@ public class DNNActivity extends AppCompatActivity {
                 Log.e ("Error", "Could not create the directories");
             }
         }
+        // Make sure the frames folder are clear before starting the DNN activity
+        deleteRecursive(framesDir);
+        deleteRecursive(srFramesDir);
         setOnClicks();
         runSR();
     }
@@ -223,16 +228,6 @@ public class DNNActivity extends AppCompatActivity {
         }
     }
 
-    private MappedByteBuffer loadModelFile(String modelName) throws IOException {
-        AssetFileDescriptor modelFileDescriptor = this.getAssets().openFd("models/" + modelName);
-        FileInputStream inputStream = new FileInputStream(modelFileDescriptor.getFileDescriptor());
-        FileChannel fileChannel = inputStream.getChannel();
-        long startOffset = modelFileDescriptor.getStartOffset();
-        long declaredLength = modelFileDescriptor.getDeclaredLength();
-
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
-    }
-
     private void closeAllDelagates() {
         if(null != srModel)
             srModel.close();
@@ -244,38 +239,26 @@ public class DNNActivity extends AppCompatActivity {
 
     private void initializeDNNwithGPU() {
         closeAllDelagates();
-        try {
-            options = new Interpreter.Options();
-            // GPU delegate
-            GpuDelegate.Options delegateOptions = compatList.getBestOptionsForThisDevice();
-            gpuDelegate = new GpuDelegate(delegateOptions);
-            options.addDelegate(gpuDelegate);
-            srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"), options);
-        } catch (IOException e) {
-            Log.e("Error" ,"Error while initializing model with GPU: " + e);
-        }
+        options = new Interpreter.Options();
+        // GPU delegate
+        GpuDelegate.Options delegateOptions = compatList.getBestOptionsForThisDevice();
+        gpuDelegate = new GpuDelegate(delegateOptions);
+        options.addDelegate(gpuDelegate);
+        srModel = new Interpreter(new File(networksDir.toString() + "/" + selectedModel + ".tflite"), options);
     }
 
     private void initializeDNNwithNNAPI() {
         closeAllDelagates();
-        try {
-            options = new Interpreter.Options();
-            // GPU delegate
-            nnApiDelegate = new NnApiDelegate();
-            options.addDelegate(nnApiDelegate);
-            srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"), options);
-        } catch (IOException e) {
-            Log.e("Error" ,"Error while initializing model with NNAPI: " + e);
-        }
+        options = new Interpreter.Options();
+        // NNAPI delegate
+        nnApiDelegate = new NnApiDelegate();
+        options.addDelegate(nnApiDelegate);
+        srModel = new Interpreter(new File(networksDir.toString() + "/" + selectedModel + ".tflite"), options);
     }
 
     private void initializeDNNwithCPU() {
         closeAllDelagates();
-        try {
-            srModel = new Interpreter(loadModelFile(selectedModel + ".tflite"));
-        } catch (IOException e) {
-            Log.e("Error" ,"Error while initializing model: " + e);
-        }
+        srModel = new Interpreter(new File(networksDir.toString() + "/" + selectedModel + ".tflite"));
     }
 
     private void setScale(String modelName) {
@@ -354,7 +337,6 @@ public class DNNActivity extends AppCompatActivity {
                     ffmpegSession.getReturnCode(), ffmpegSession.getFailStackTrace()));
         }
     }
-
 
     private void fillFrames() {
         File inputDirectory = new File(String.valueOf(framesDir));
