@@ -104,7 +104,7 @@ adam = tf.keras.optimizers.Adam(learning_rate=5e-6)
 model.compile(optimizer=adam, loss='mse')
 ```
 
-## Quantization
+## Quantization
 
 To quantize a saved checkpoint into a *tensorflow lite* version, you can use the `quantize.py` file. An example call looks like this:
 
