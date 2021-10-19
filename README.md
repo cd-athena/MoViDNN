@@ -95,5 +95,5 @@ In the end, ratings are saved into a CSV file which can be used later.
 </p>
 
 ## Authors
-* Ekrem Çetinkaya, Christian Doppler Laboratory ATHENA, Alpen-Adria-Universitaet Klagenfurt
-* Minh Nguyen, Christian Doppler Laboratory ATHENA, Alpen-Adria-Universitaet Klagenfurt
+* Ekrem Çetinkaya - Christian Doppler Laboratory ATHENA, Alpen-Adria-Universitaet Klagenfurt - ekrem.cetinkaya@aau.at
+* Minh Nguyen - Christian Doppler Laboratory ATHENA, Alpen-Adria-Universitaet Klagenfurt - minh.nguyen@aau.at
