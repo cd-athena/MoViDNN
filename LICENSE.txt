@@ -1,4 +1,5 @@
 /* -----------------------------------------------------------------------------
+
 The copyright in this software is being made available under a modified BSD
 License, included below. No patent rights, trademark rights and/or 
 other Intellectual Property Rights other than the copyrights concerning 
