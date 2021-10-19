@@ -1,5 +1,3 @@
-/* -----------------------------------------------------------------------------
-
 The copyright in this software is being made available under a modified BSD
 License, included below. No patent rights, trademark rights and/or 
 other Intellectual Property Rights other than the copyrights concerning 
@@ -9,16 +7,16 @@ For any license concerning other Intellectual Property Rights in the software,
 especially patent licenses or commercial uses, a separate Agreement is required. 
 For more information please contact:
 
-ATHENA Christian Doppler (CD) Laboratory
-Alpen-Adria-Universität Klagenfurt
-Institute of Information Technology (ITEC)
-Universitätsstraße 65-67
-9020 Klagenfurt, Austria
-https://athena.itec.aau.at/
-athena-info@itec.aau.at
+ATHENA Christian Doppler (CD) Laboratory  
+Alpen-Adria-Universität Klagenfurt  
+Institute of Information Technology (ITEC)  
+Universitätsstraße 65-67  
+9020 Klagenfurt, Austria  
+[https://athena.itec.aau.at/](https://athena.itec.aau.at/)  
+[athena-info@itec.aau.at](athena-info@itec.aau.at)
 
-Copyright (c) 2019-2021, ATHENA Christian Doppler (CD) Laboratory 
-All rights reserved.
+**Copyright (c) 2019-2021, ATHENA Christian Doppler (CD) Laboratory 
+All rights reserved.**
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -43,5 +41,3 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
-
-------------------------------------------------------------------------------------------- */
