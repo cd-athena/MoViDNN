@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the article from preferred-citation and the software itself."
+preferred-citation:
+  authors:
+    - family-names: "Cetinkaya"
+      given-names: "Ekrem"
+      orcid: "https://orcid.org/0000-0002-6084-6249"
+    - family-names: "Nguyen"
+      given-names: "Minh"
+    - family-names: "Timmerer"
+      given-names: "Christian"
+      orcid: "https://orcid.org/0000-0002-0031-5243"
+  title: "MoViDNN: A Mobile Platform for Evaluating Video Quality Enhancement with Deep Neural Networks"
+  doi: 10.1145/3339825.3393581
+  url : "https://doi.org/10.1007/978-3-030-98355-0_40"
+  type: conference-paper
+  pages: "465--472"
+  year: "2022"
+  isbn: "978-3-030-98355-0"
+  collection-title: "MultiMedia Modeling"
+  collection-type: proceedings
+  location:
+        name: "Phu Quoc, Vietnam"
+  conference:
+        name: "MMM'22"
+  publisher:
+        name: "Springer International Publishing"
+        address: "Cham"
+title: "MoViDNN: A Mobile Platform for Evaluating Video Quality Enhancement with Deep Neural Networkss"
+version: 1.0.0
+date-released: 2021-10-19
+url: "https://github.com/cd-athena/MoViDNN"
