@@ -97,3 +97,18 @@ In the end, ratings are saved into a CSV file which can be used later.
 ## Authors
 * Ekrem Çetinkaya - Christian Doppler Laboratory ATHENA, Alpen-Adria-Universitaet Klagenfurt - ekrem.cetinkaya@aau.at
 * Minh Nguyen - Christian Doppler Laboratory ATHENA, Alpen-Adria-Universitaet Klagenfurt - minh.nguyen@aau.at
+
+## Citation
+```
+@InProceedings{movidnn,
+  author={\c{C}}etinkaya, Ekrem and Nguyen, Minh and Timmerer, Christian},
+  title={{MoViDNN: A Mobile Platform for Evaluating Video Quality Enhancement with Deep Neural Networks}},
+  booktitle={MultiMedia Modeling},
+  year={2022},
+  publisher={Springer International Publishing},
+  address={Cham},
+  pages={465--472},
+  isbn={978-3-030-98355-0}
+}
+
+```
