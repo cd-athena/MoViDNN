@@ -100,8 +100,8 @@ In the end, ratings are saved into a CSV file which can be used later.
 
 ## Citation
 ```
-@InProceedings{movidnn,
-  author={\c{C}}etinkaya, Ekrem and Nguyen, Minh and Timmerer, Christian},
+@inproceedings{movidnn,
+  author={\c{C}etinkaya, Ekrem and Nguyen, Minh and Timmerer, Christian},
   title={{MoViDNN: A Mobile Platform for Evaluating Video Quality Enhancement with Deep Neural Networks}},
   booktitle={MultiMedia Modeling},
   year={2022},
